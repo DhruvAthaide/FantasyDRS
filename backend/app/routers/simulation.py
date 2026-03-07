@@ -1,7 +1,10 @@
 import asyncio
+import logging
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 from app.database import get_db
 from app.models import Driver, Constructor, Race, Circuit, FantasyPrice, SimulationResult
@@ -107,9 +110,8 @@ async def run_simulation(
                 )
                 for code, dp in dynamic_params.items():
                     practice_sources.extend(dp.data_sources)
-        except Exception:
-            # Fall back to defaults if API fails
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to fetch practice data: {e}. Falling back to defaults.")
 
     driver_params = _build_driver_params(db, dynamic_params)
     constructor_params = _build_constructor_params(db, driver_params)

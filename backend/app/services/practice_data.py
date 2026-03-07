@@ -6,21 +6,24 @@ This replaces the static defaults in parameters.py with real FP1/FP2/FP3 data
 when available.
 """
 
+import os
 import httpx
 import numpy as np
 from dataclasses import dataclass
 
 OPENF1_BASE = "https://api.openf1.org/v1"
+OPENF1_API_KEY = os.environ.get("OPENF1_API_KEY", "")
 
 # Weights for combining data sources into Qpace estimate
 # FP3 gets highest weight (closest to qualifying, quali sim runs)
+# With new 2026 regs, practice data is far more valuable than defaults
 WEIGHTS = {
-    "fp1": 0.05,
-    "fp2": 0.10,
-    "fp3": 0.30,
-    "recent_quali": 0.25,
-    "season_avg": 0.15,
-    "circuit_history": 0.15,
+    "fp1": 0.15,
+    "fp2": 0.25,
+    "fp3": 0.45,
+    "recent_quali": 0.0,
+    "season_avg": 0.0,
+    "circuit_history": 0.0,
 }
 
 
@@ -47,9 +50,17 @@ class DynamicDriverParams:
     data_sources: list[str]  # Which sessions contributed to the estimate
 
 
+def _get_headers() -> dict:
+    """Build request headers, including API key if available."""
+    headers = {}
+    if OPENF1_API_KEY:
+        headers["Authorization"] = f"Bearer {OPENF1_API_KEY}"
+    return headers
+
+
 async def fetch_session_key(year: int, meeting_name: str, session_type: str) -> int | None:
     """Get OpenF1 session key for a specific session."""
-    async with httpx.AsyncClient(timeout=15) as client:
+    async with httpx.AsyncClient(timeout=15, headers=_get_headers()) as client:
         resp = await client.get(
             f"{OPENF1_BASE}/sessions",
             params={
@@ -66,7 +77,7 @@ async def fetch_session_key(year: int, meeting_name: str, session_type: str) -> 
 
 async def fetch_session_laps(session_key: int) -> list[dict]:
     """Fetch all lap times for a session from OpenF1."""
-    async with httpx.AsyncClient(timeout=30) as client:
+    async with httpx.AsyncClient(timeout=30, headers=_get_headers()) as client:
         resp = await client.get(
             f"{OPENF1_BASE}/laps",
             params={"session_key": session_key},
@@ -78,7 +89,7 @@ async def fetch_session_laps(session_key: int) -> list[dict]:
 
 async def fetch_driver_list(session_key: int) -> dict[int, str]:
     """Fetch driver number -> code mapping for a session."""
-    async with httpx.AsyncClient(timeout=15) as client:
+    async with httpx.AsyncClient(timeout=15, headers=_get_headers()) as client:
         resp = await client.get(
             f"{OPENF1_BASE}/drivers",
             params={"session_key": session_key},
@@ -248,10 +259,10 @@ def calculate_dynamic_params(
 
         qpace_mean = weighted_sum / total_weight if total_weight > 0 else default_qpace
 
-        # Qpace std: reduce if we have more data (more confident)
+        # Qpace std: reduce significantly with more data (more confident)
         base_std = defaults["qpace_std"]
-        confidence_factor = 1.0 - (len(data_sources) * 0.15)  # Up to 45% reduction with all 3 FP sessions
-        confidence_factor = max(0.5, confidence_factor)
+        confidence_factor = 1.0 - (len(data_sources) * 0.20)  # Up to 60% reduction with all 3 FP sessions
+        confidence_factor = max(0.35, confidence_factor)
         qpace_std = base_std * confidence_factor
 
         # Rpace from Qpace + overtake adjustment
@@ -262,12 +273,19 @@ def calculate_dynamic_params(
 
         # FL probability scales with pace (better pace = higher FL chance)
         base_fl = defaults["fl_pct"]
-        if qpace_mean <= 5:
-            fl_prob = base_fl * 1.3
-        elif qpace_mean <= 10:
-            fl_prob = base_fl
+        if len(data_sources) > 0:
+            # With practice data, scale FL chance based on actual pace
+            if qpace_mean <= 4:
+                fl_prob = base_fl * 2.5
+            elif qpace_mean <= 8:
+                fl_prob = base_fl * 1.5
+            elif qpace_mean <= 14:
+                fl_prob = base_fl
+            else:
+                fl_prob = base_fl * 0.4
         else:
-            fl_prob = base_fl * 0.5
+            # No practice data — equal FL chance for all
+            fl_prob = base_fl
 
         results[code] = DynamicDriverParams(
             driver_code=code,
