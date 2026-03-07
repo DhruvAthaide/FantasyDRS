@@ -56,6 +56,17 @@ class SimulationResultResponse(BaseModel):
     points_per_million: float
 
 
+class SimulationMeta(BaseModel):
+    race_id: int
+    race_name: str
+    n_simulations: int
+    data_sources: list[str]
+    has_qualifying: bool
+    has_long_runs: bool
+    weather: Optional[dict] = None
+    simulated_at: str
+
+
 class BestTeamRequest(BaseModel):
     budget: float = 100.0
     race_id: Optional[int] = None
@@ -65,6 +76,7 @@ class BestTeamRequest(BaseModel):
     exclude_constructors: list[int] = []
     drs_multiplier: int = 2
     top_n: int = 10
+    drs_driver_id: Optional[int] = None
 
 
 class TeamResult(BaseModel):

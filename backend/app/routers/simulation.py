@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -8,11 +7,11 @@ logger = logging.getLogger(__name__)
 
 from app.database import get_db
 from app.models import Driver, Constructor, Race, Circuit, FantasyPrice, SimulationResult
-from app.schemas import SimulationResultResponse, BestTeamRequest, TeamResult, DriverResponse, ConstructorResponse
+from app.schemas import SimulationResultResponse, BestTeamRequest, TeamResult, DriverResponse, ConstructorResponse, SimulationMeta
 from app.simulation.engine import DriverParams, ConstructorParams, simulate_race_weekend
 from app.simulation.optimizer import find_best_teams, Asset
 from app.simulation.parameters import DRIVER_DEFAULTS, CONSTRUCTOR_PITSTOP_DEFAULTS
-from app.services.practice_data import fetch_practice_data, calculate_dynamic_params
+from app.services.practice_data import fetch_practice_data, fetch_session_metadata, calculate_dynamic_params
 
 router = APIRouter(prefix="/api", tags=["simulation"])
 
@@ -20,17 +19,19 @@ router = APIRouter(prefix="/api", tags=["simulation"])
 def _build_driver_params(
     db: Session,
     dynamic_params: dict | None = None,
+    grid_penalties: dict[int, int] | None = None,
 ) -> list[DriverParams]:
     """Build driver params, using dynamic practice data when available."""
     drivers = db.query(Driver).all()
     params = []
     for d in drivers:
         constructor = db.get(Constructor, d.constructor_id)
+        penalty = (grid_penalties or {}).get(d.id, 0)
 
         if dynamic_params and d.code in dynamic_params:
             dp = dynamic_params[d.code]
             defaults = DRIVER_DEFAULTS.get(d.code, {
-                "dnf_pct": 0.07, "fl_pct": 0.02, "avg_pos_gained": 0.3,
+                "dnf_pct": 0.06, "fl_pct": 1/22, "avg_pos_gained": 0.3,
             })
             params.append(DriverParams(
                 id=d.id,
@@ -41,11 +42,12 @@ def _build_driver_params(
                 dnf_probability=dp.dnf_probability,
                 fl_probability=dp.fl_probability,
                 avg_positions_gained=defaults.get("avg_pos_gained", 0.3),
+                grid_penalty=penalty,
             ))
         else:
             defaults = DRIVER_DEFAULTS.get(d.code, {
-                "qpace_mean": 12.0, "qpace_std": 3.5,
-                "dnf_pct": 0.07, "fl_pct": 0.02, "avg_pos_gained": 0.3,
+                "qpace_mean": 12.0, "qpace_std": 4.0,
+                "dnf_pct": 0.06, "fl_pct": 1/22, "avg_pos_gained": 0.3,
             })
             params.append(DriverParams(
                 id=d.id,
@@ -56,6 +58,7 @@ def _build_driver_params(
                 dnf_probability=defaults["dnf_pct"],
                 fl_probability=defaults["fl_pct"],
                 avg_positions_gained=defaults["avg_pos_gained"],
+                grid_penalty=penalty,
             ))
     return params
 
@@ -68,7 +71,7 @@ def _build_constructor_params(db: Session, driver_params: list[DriverParams]) ->
 
     params = []
     for c in constructors:
-        pitstop_pts = CONSTRUCTOR_PITSTOP_DEFAULTS.get(c.ref_id, 3.0)
+        pitstop_pts = CONSTRUCTOR_PITSTOP_DEFAULTS.get(c.ref_id, 4.0)
         params.append(ConstructorParams(
             id=c.id,
             ref_id=c.ref_id,
@@ -78,42 +81,69 @@ def _build_constructor_params(db: Session, driver_params: list[DriverParams]) ->
     return params
 
 
-@router.post("/simulate/{race_id}", response_model=list[SimulationResultResponse])
+@router.post("/simulate/{race_id}")
 async def run_simulation(
     race_id: int,
     use_practice_data: bool = True,
+    n_simulations: int = 10000,
+    grid_penalties: dict[int, int] | None = None,
     db: Session = Depends(get_db),
 ):
     race = db.get(Race, race_id)
     if not race:
-        return []
+        return {"results": [], "meta": {}}
 
     circuit = db.get(Circuit, race.circuit_id)
     overtake_diff = circuit.overtake_difficulty if circuit else 0.5
 
-    # Try to fetch practice session data from OpenF1
+    # Clamp simulation count
+    n_simulations = max(1000, min(50000, n_simulations))
+
+    # Fetch session data via FastF1
     dynamic_params = None
-    practice_sources = []
+    data_sources_summary = []
+    weather_info = None
+    long_runs = None
+
     if use_practice_data:
         try:
-            # Extract year from race date
             year = int(race.date[:4]) if race.date else 2026
             meeting_name = race.name.replace(" Grand Prix", "")
 
             practice_data = await fetch_practice_data(year, meeting_name)
+
+            # Also fetch long runs and weather
+            try:
+                metadata = await fetch_session_metadata(year, meeting_name)
+                long_runs = metadata.get("long_runs")
+                w = metadata.get("weather")
+                if w and w.air_temp is not None:
+                    weather_info = {
+                        "air_temp": w.air_temp,
+                        "track_temp": w.track_temp,
+                        "humidity": w.humidity,
+                        "wind_speed": w.wind_speed,
+                        "rainfall": w.rainfall,
+                    }
+            except Exception as e:
+                logger.warning(f"Failed to fetch session metadata: {e}")
 
             if practice_data:
                 dynamic_params = calculate_dynamic_params(
                     practice_data,
                     DRIVER_DEFAULTS,
                     overtake_diff,
+                    long_runs=long_runs,
                 )
-                for code, dp in dynamic_params.items():
-                    practice_sources.extend(dp.data_sources)
+                # Collect unique data sources
+                all_sources = set()
+                for dp in dynamic_params.values():
+                    all_sources.update(dp.data_sources)
+                data_sources_summary = sorted(all_sources)
         except Exception as e:
             logger.warning(f"Failed to fetch practice data: {e}. Falling back to defaults.")
 
-    driver_params = _build_driver_params(db, dynamic_params)
+    driver_params = _build_driver_params(db, dynamic_params, grid_penalties)
     constructor_params = _build_constructor_params(db, driver_params)
 
     results = simulate_race_weekend(
@@ -121,7 +151,7 @@ async def run_simulation(
         constructors=constructor_params,
         overtake_difficulty=overtake_diff,
         is_sprint=race.has_sprint,
-        n_simulations=10000,
+        n_simulations=n_simulations,
     )
 
     # Store results and build response
@@ -169,7 +199,19 @@ async def run_simulation(
         ))
 
     db.commit()
-    return response
+
+    meta = SimulationMeta(
+        race_id=race_id,
+        race_name=race.name,
+        n_simulations=n_simulations,
+        data_sources=data_sources_summary,
+        has_qualifying="qualifying" in data_sources_summary,
+        has_long_runs=bool(long_runs),
+        weather=weather_info,
+        simulated_at=datetime.utcnow().isoformat(),
+    )
+
+    return {"results": response, "meta": meta}
 
 
 @router.post("/best-teams", response_model=list[TeamResult])
@@ -240,6 +282,7 @@ def get_best_teams(request: BestTeamRequest, db: Session = Depends(get_db)):
         exclude_constructor_ids=request.exclude_constructors,
         drs_multiplier=request.drs_multiplier,
         top_n=request.top_n,
+        drs_driver_id=request.drs_driver_id,
     )
 
     result = []

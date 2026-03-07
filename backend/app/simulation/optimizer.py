@@ -35,6 +35,7 @@ def find_best_teams(
     exclude_constructor_ids: list[int] | None = None,
     drs_multiplier: int = 2,
     top_n: int = 10,
+    drs_driver_id: int | None = None,
 ) -> list[OptimalTeam]:
     include_driver_ids = set(include_driver_ids or [])
     exclude_driver_ids = set(exclude_driver_ids or [])
@@ -68,8 +69,11 @@ def find_best_teams(
         d_cost = sum(d.price for d in d_combo)
         d_pts = sum(d.expected_pts for d in d_combo)
 
-        # Best DRS boost driver
-        drs_driver = max(d_combo, key=lambda d: d.expected_pts)
+        # DRS driver: user-selected or auto-pick best
+        if drs_driver_id and any(d.id == drs_driver_id for d in d_combo):
+            drs_driver = next(d for d in d_combo if d.id == drs_driver_id)
+        else:
+            drs_driver = max(d_combo, key=lambda d: d.expected_pts)
         drs_bonus = drs_driver.expected_pts * (drs_multiplier - 1)
 
         for c_combo, c_cost, c_pts in valid_c_combos:

@@ -1,29 +1,30 @@
 """
-Fetch and process practice session data from OpenF1 API to calculate
+Fetch and process session data using FastF1 to calculate
 dynamic Qpace/Rpace parameters for the simulation engine.
 
-This replaces the static defaults in parameters.py with real FP1/FP2/FP3 data
-when available.
+Supports FP1/FP2/FP3 practice sessions, qualifying results, long run analysis,
+and weather data. FastF1 works during live sessions (unlike OpenF1 API).
 """
 
-import os
-import httpx
+import logging
+import warnings
 import numpy as np
-from dataclasses import dataclass
+import fastf1
+from dataclasses import dataclass, field
 
-OPENF1_BASE = "https://api.openf1.org/v1"
-OPENF1_API_KEY = os.environ.get("OPENF1_API_KEY", "")
+logger = logging.getLogger(__name__)
 
-# Weights for combining data sources into Qpace estimate
-# FP3 gets highest weight (closest to qualifying, quali sim runs)
-# With new 2026 regs, practice data is far more valuable than defaults
+import os
+CACHE_DIR = os.environ.get("FASTF1_CACHE", os.path.join(os.path.dirname(__file__), "..", "..", ".fastf1_cache"))
+os.makedirs(CACHE_DIR, exist_ok=True)
+fastf1.Cache.enable_cache(CACHE_DIR)
+
+# Qualifying dominates when available
 WEIGHTS = {
-    "fp1": 0.15,
-    "fp2": 0.25,
-    "fp3": 0.45,
-    "recent_quali": 0.0,
-    "season_avg": 0.0,
-    "circuit_history": 0.0,
+    "fp1": 0.05,
+    "fp2": 0.10,
+    "fp3": 0.20,
+    "qualifying": 0.65,
 }
 
 
@@ -39,6 +40,23 @@ class PracticeResult:
 
 
 @dataclass
+class LongRunData:
+    driver_code: str
+    avg_lap_time: float
+    lap_count: int
+    degradation_per_lap: float
+
+
+@dataclass
+class WeatherInfo:
+    air_temp: float | None = None
+    track_temp: float | None = None
+    humidity: float | None = None
+    wind_speed: float | None = None
+    rainfall: bool = False
+
+
+@dataclass
 class DynamicDriverParams:
     driver_code: str
     qpace_mean: float
@@ -47,127 +65,143 @@ class DynamicDriverParams:
     rpace_std: float
     dnf_probability: float
     fl_probability: float
-    data_sources: list[str]  # Which sessions contributed to the estimate
+    data_sources: list[str] = field(default_factory=list)
+    quali_position: int | None = None
 
 
-def _get_headers() -> dict:
-    """Build request headers, including API key if available."""
-    headers = {}
-    if OPENF1_API_KEY:
-        headers["Authorization"] = f"Bearer {OPENF1_API_KEY}"
-    return headers
+def _process_fastf1_session(session_name: str, year: int, event_name: str) -> list[PracticeResult]:
+    """Load a session via FastF1 and extract pace data."""
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            session = fastf1.get_session(year, event_name, session_name)
+            session.load(telemetry=False, weather=False, messages=False)
 
-
-async def fetch_session_key(year: int, meeting_name: str, session_type: str) -> int | None:
-    """Get OpenF1 session key for a specific session."""
-    async with httpx.AsyncClient(timeout=15, headers=_get_headers()) as client:
-        resp = await client.get(
-            f"{OPENF1_BASE}/sessions",
-            params={
-                "year": year,
-                "session_name": session_type,
-                "meeting_name": meeting_name,
-            },
-        )
-        if resp.status_code != 200:
-            return None
-        data = resp.json()
-        return data[0]["session_key"] if data else None
-
-
-async def fetch_session_laps(session_key: int) -> list[dict]:
-    """Fetch all lap times for a session from OpenF1."""
-    async with httpx.AsyncClient(timeout=30, headers=_get_headers()) as client:
-        resp = await client.get(
-            f"{OPENF1_BASE}/laps",
-            params={"session_key": session_key},
-        )
-        if resp.status_code != 200:
+        laps = session.laps
+        if laps.empty:
             return []
-        return resp.json()
+
+        results = []
+        for driver_code in laps["Driver"].unique():
+            driver_laps = laps[laps["Driver"] == driver_code]["LapTime"].dropna()
+            if driver_laps.empty:
+                continue
+
+            times = [lt.total_seconds() for lt in driver_laps if lt.total_seconds() > 0]
+            if not times:
+                continue
+
+            best = min(times)
+            threshold = best * 1.07
+            valid = [t for t in times if t <= threshold]
+            if not valid:
+                valid = [best]
+
+            top3 = sorted(valid)[:3]
+            representative = sum(top3) / len(top3)
+
+            driver_num = 0
+            try:
+                driver_num = int(laps[laps["Driver"] == driver_code]["DriverNumber"].iloc[0])
+            except (ValueError, IndexError):
+                pass
+
+            results.append(PracticeResult(
+                driver_number=driver_num,
+                driver_code=driver_code,
+                session_type="",
+                best_lap_time=best,
+                representative_lap=representative,
+                position=0,
+                gap_to_leader=0,
+            ))
+
+        results.sort(key=lambda r: r.representative_lap or float("inf"))
+        if results:
+            leader_time = results[0].representative_lap or 0
+            for i, r in enumerate(results):
+                r.position = i + 1
+                r.gap_to_leader = (r.representative_lap - leader_time) if leader_time else 0
+
+        return results
+
+    except Exception as e:
+        logger.warning(f"Failed to load {session_name} via FastF1: {e}")
+        return []
 
 
-async def fetch_driver_list(session_key: int) -> dict[int, str]:
-    """Fetch driver number -> code mapping for a session."""
-    async with httpx.AsyncClient(timeout=15, headers=_get_headers()) as client:
-        resp = await client.get(
-            f"{OPENF1_BASE}/drivers",
-            params={"session_key": session_key},
-        )
-        if resp.status_code != 200:
+def _extract_long_runs(year: int, event_name: str) -> dict[str, LongRunData]:
+    """Extract long run / race pace data from FP2."""
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            session = fastf1.get_session(year, event_name, "FP2")
+            session.load(telemetry=False, weather=False, messages=False)
+
+        laps = session.laps
+        if laps.empty:
             return {}
-        return {d["driver_number"]: d["name_acronym"] for d in resp.json()}
+
+        long_runs = {}
+        for driver_code in laps["Driver"].unique():
+            driver_laps = laps[laps["Driver"] == driver_code].copy()
+            driver_laps = driver_laps[driver_laps["LapTime"].notna()]
+            if len(driver_laps) < 5:
+                continue
+
+            times = [lt.total_seconds() for lt in driver_laps["LapTime"] if lt.total_seconds() > 0]
+            if len(times) < 5:
+                continue
+
+            best = min(times)
+            threshold_low = best * 1.005
+            threshold_high = best * 1.05
+            long_run_laps = [t for t in times if threshold_low <= t <= threshold_high]
+
+            if len(long_run_laps) >= 4:
+                avg_time = sum(long_run_laps) / len(long_run_laps)
+                if len(long_run_laps) >= 3:
+                    x = np.arange(len(long_run_laps))
+                    slope = float(np.polyfit(x, long_run_laps, 1)[0])
+                else:
+                    slope = 0.0
+
+                long_runs[driver_code] = LongRunData(
+                    driver_code=driver_code,
+                    avg_lap_time=avg_time,
+                    lap_count=len(long_run_laps),
+                    degradation_per_lap=max(0, slope),
+                )
+
+        return long_runs
+
+    except Exception as e:
+        logger.warning(f"Failed to extract long runs: {e}")
+        return {}
 
 
-def process_session_laps(laps: list[dict], driver_map: dict[int, str]) -> list[PracticeResult]:
-    """
-    Process raw lap data into representative pace for each driver.
+def _fetch_weather(year: int, event_name: str, session_name: str = "FP3") -> WeatherInfo:
+    """Fetch weather data from the most recent session."""
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            session = fastf1.get_session(year, event_name, session_name)
+            session.load(telemetry=False, laps=False, messages=False)
 
-    Filters out:
-    - Installation laps (very slow, first few laps)
-    - Outlier laps (> 107% of session best)
-    - Incomplete laps (no lap_duration)
-    """
-    if not laps:
-        return []
+        weather = session.weather_data
+        if weather is not None and not weather.empty:
+            last = weather.iloc[-1]
+            return WeatherInfo(
+                air_temp=float(last.get("AirTemp", 0)) if "AirTemp" in last else None,
+                track_temp=float(last.get("TrackTemp", 0)) if "TrackTemp" in last else None,
+                humidity=float(last.get("Humidity", 0)) if "Humidity" in last else None,
+                wind_speed=float(last.get("WindSpeed", 0)) if "WindSpeed" in last else None,
+                rainfall=bool(last.get("Rainfall", False)) if "Rainfall" in last else False,
+            )
+    except Exception as e:
+        logger.warning(f"Failed to fetch weather: {e}")
 
-    # Group laps by driver
-    driver_laps: dict[int, list[float]] = {}
-    for lap in laps:
-        driver_num = lap.get("driver_number")
-        duration = lap.get("lap_duration")
-        if driver_num is None or duration is None:
-            continue
-        if duration <= 0:
-            continue
-        driver_laps.setdefault(driver_num, []).append(duration)
-
-    if not driver_laps:
-        return []
-
-    # Find session best lap for outlier filtering
-    all_times = [t for times in driver_laps.values() for t in times]
-    if not all_times:
-        return []
-    session_best = min(all_times)
-    threshold = session_best * 1.07  # 107% rule
-
-    results = []
-    driver_bests = {}
-
-    for driver_num, times in driver_laps.items():
-        # Filter outliers
-        valid_times = [t for t in times if t <= threshold]
-        if not valid_times:
-            valid_times = [min(times)]  # At least use their best lap
-
-        best_time = min(valid_times)
-        # Representative lap = average of top 3 fastest valid laps
-        top_laps = sorted(valid_times)[:3]
-        representative = sum(top_laps) / len(top_laps)
-
-        code = driver_map.get(driver_num, f"#{driver_num}")
-        driver_bests[driver_num] = best_time
-
-        results.append(PracticeResult(
-            driver_number=driver_num,
-            driver_code=code,
-            session_type="",
-            best_lap_time=best_time,
-            representative_lap=representative,
-            position=0,
-            gap_to_leader=0,
-        ))
-
-    # Sort by representative lap and assign positions
-    results.sort(key=lambda r: r.representative_lap or float("inf"))
-    leader_time = results[0].representative_lap if results else 0
-
-    for i, r in enumerate(results):
-        r.position = i + 1
-        r.gap_to_leader = (r.representative_lap - leader_time) if leader_time else 0
-
-    return results
+    return WeatherInfo()
 
 
 async def fetch_practice_data(
@@ -175,64 +209,85 @@ async def fetch_practice_data(
     meeting_name: str,
 ) -> dict[str, list[PracticeResult]]:
     """
-    Fetch FP1, FP2, FP3 data for a given race weekend.
+    Fetch FP1, FP2, FP3, and Qualifying data for a race weekend.
     Returns dict keyed by session type.
     """
     sessions = {}
+    session_map = {
+        "fp1": "FP1",
+        "fp2": "FP2",
+        "fp3": "FP3",
+        "qualifying": "Q",
+    }
 
-    for session_type in ["Practice 1", "Practice 2", "Practice 3"]:
-        session_key = await fetch_session_key(year, meeting_name, session_type)
-        if not session_key:
-            continue
+    event_name = meeting_name
+    if "Grand Prix" not in event_name:
+        event_name = f"{event_name} Grand Prix"
 
-        laps = await fetch_session_laps(session_key)
-        driver_map = await fetch_driver_list(session_key)
-        results = process_session_laps(laps, driver_map)
-
-        key = session_type.lower().replace("practice ", "fp")
-        for r in results:
-            r.session_type = key
-
-        sessions[key] = results
+    for key, fastf1_name in session_map.items():
+        results = _process_fastf1_session(fastf1_name, year, event_name)
+        if results:
+            for r in results:
+                r.session_type = key
+            sessions[key] = results
+            logger.info(f"Loaded {len(results)} drivers from {fastf1_name}")
 
     return sessions
+
+
+async def fetch_session_metadata(
+    year: int,
+    meeting_name: str,
+) -> dict:
+    """Fetch long runs and weather data."""
+    event_name = meeting_name
+    if "Grand Prix" not in event_name:
+        event_name = f"{event_name} Grand Prix"
+
+    long_runs = _extract_long_runs(year, event_name)
+
+    weather = WeatherInfo()
+    for sess in ["Q", "FP3", "FP2", "FP1"]:
+        weather = _fetch_weather(year, event_name, sess)
+        if weather.air_temp is not None:
+            break
+
+    return {"long_runs": long_runs, "weather": weather}
 
 
 def calculate_dynamic_params(
     practice_data: dict[str, list[PracticeResult]],
     default_params: dict[str, dict],
     overtake_difficulty: float = 0.5,
+    long_runs: dict[str, LongRunData] | None = None,
 ) -> dict[str, DynamicDriverParams]:
     """
-    Calculate dynamic Qpace/Rpace from practice session data.
-
-    Blends practice positions with default parameters using configured weights.
-    More practice data available = higher confidence in the estimate.
+    Calculate dynamic Qpace/Rpace from session data.
+    Qualifying dominates qpace when available. Long runs improve rpace.
     """
     all_driver_codes = set()
     for session_results in practice_data.values():
         for r in session_results:
             all_driver_codes.add(r.driver_code)
-
-    # Also include drivers from defaults who might not have practice data
     for code in default_params:
         all_driver_codes.add(code)
+
+    quali_positions = {}
+    if "qualifying" in practice_data:
+        for r in practice_data["qualifying"]:
+            quali_positions[r.driver_code] = r.position
 
     results = {}
     for code in all_driver_codes:
         defaults = default_params.get(code, {
-            "qpace_mean": 12.0,
-            "qpace_std": 3.5,
-            "dnf_pct": 0.07,
-            "fl_pct": 0.02,
-            "avg_pos_gained": 0.3,
+            "qpace_mean": 12.0, "qpace_std": 4.0,
+            "dnf_pct": 0.06, "fl_pct": 1 / 22, "avg_pos_gained": 0.3,
         })
 
-        # Collect position data from each practice session
         fp_positions = {}
         data_sources = []
 
-        for session_key in ["fp1", "fp2", "fp3"]:
+        for session_key in ["fp1", "fp2", "fp3", "qualifying"]:
             session_results = practice_data.get(session_key, [])
             for r in session_results:
                 if r.driver_code == code:
@@ -240,41 +295,49 @@ def calculate_dynamic_params(
                     data_sources.append(session_key)
                     break
 
-        # Calculate weighted Qpace
+        # Weighted Qpace
         weighted_sum = 0.0
         total_weight = 0.0
-
-        # Practice session contributions
-        for session_key, weight_key in [("fp1", "fp1"), ("fp2", "fp2"), ("fp3", "fp3")]:
+        for session_key in ["fp1", "fp2", "fp3", "qualifying"]:
             if session_key in fp_positions:
-                weight = WEIGHTS[weight_key]
+                weight = WEIGHTS[session_key]
                 weighted_sum += fp_positions[session_key] * weight
                 total_weight += weight
 
-        # Default parameter contributions (always available)
         default_qpace = defaults["qpace_mean"]
         remaining_weight = 1.0 - total_weight
-        weighted_sum += default_qpace * remaining_weight
-        total_weight += remaining_weight
+        if remaining_weight > 0:
+            weighted_sum += default_qpace * remaining_weight
+            total_weight += remaining_weight
 
         qpace_mean = weighted_sum / total_weight if total_weight > 0 else default_qpace
 
-        # Qpace std: reduce significantly with more data (more confident)
-        base_std = defaults["qpace_std"]
-        confidence_factor = 1.0 - (len(data_sources) * 0.20)  # Up to 60% reduction with all 3 FP sessions
-        confidence_factor = max(0.35, confidence_factor)
-        qpace_std = base_std * confidence_factor
+        has_quali = "qualifying" in data_sources
+        if has_quali:
+            qpace_mean = quali_positions.get(code, qpace_mean)
+            qpace_std = 1.2  # Very tight — actual grid position
+        else:
+            base_std = defaults["qpace_std"]
+            confidence_factor = 1.0 - (len(data_sources) * 0.20)
+            confidence_factor = max(0.35, confidence_factor)
+            qpace_std = base_std * confidence_factor
 
-        # Rpace from Qpace + overtake adjustment
+        # Rpace
         avg_pos_gained = defaults["avg_pos_gained"]
         overtake_ease = 1.0 - overtake_difficulty
-        rpace_mean = qpace_mean - (avg_pos_gained * overtake_ease)
-        rpace_std = qpace_std * 1.2
 
-        # FL probability scales with pace (better pace = higher FL chance)
+        if long_runs and code in long_runs:
+            lr = long_runs[code]
+            all_lr_times = sorted(lr2.avg_lap_time for lr2 in long_runs.values())
+            lr_position = all_lr_times.index(lr.avg_lap_time) + 1
+            rpace_mean = (lr_position * 0.6 + qpace_mean * 0.4) - (avg_pos_gained * overtake_ease)
+            rpace_std = qpace_std * 1.0
+        else:
+            rpace_mean = qpace_mean - (avg_pos_gained * overtake_ease)
+            rpace_std = qpace_std * 1.2
+
         base_fl = defaults["fl_pct"]
         if len(data_sources) > 0:
-            # With practice data, scale FL chance based on actual pace
             if qpace_mean <= 4:
                 fl_prob = base_fl * 2.5
             elif qpace_mean <= 8:
@@ -284,7 +347,6 @@ def calculate_dynamic_params(
             else:
                 fl_prob = base_fl * 0.4
         else:
-            # No practice data — equal FL chance for all
             fl_prob = base_fl
 
         results[code] = DynamicDriverParams(
@@ -296,6 +358,7 @@ def calculate_dynamic_params(
             dnf_probability=defaults["dnf_pct"],
             fl_probability=round(fl_prob, 4),
             data_sources=data_sources,
+            quali_position=quali_positions.get(code),
         )
 
     return results
