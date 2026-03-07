@@ -42,6 +42,10 @@ class Circuit(Base):
     name = Column(String, nullable=False)
     country = Column(String)
     overtake_difficulty = Column(Float, default=0.5)
+    high_speed = Column(Float, default=0.5)
+    street_circuit = Column(Boolean, default=False)
+    altitude = Column(Integer, default=0)
+    avg_degradation = Column(Float, default=0.5)
 
 
 class Race(Base):
@@ -86,6 +90,35 @@ class FantasyScore(Base):
     dnf_penalty = Column(Float, default=0)
     pitstop_pts = Column(Float, default=0)
     total_pts = Column(Float, default=0)
+
+
+class PitstopResult(Base):
+    __tablename__ = "pitstop_results"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    constructor_id = Column(Integer, ForeignKey("constructors.id"))
+    race_id = Column(Integer, ForeignKey("races.id"))
+    stop_number = Column(Integer, default=1)
+    time_seconds = Column(Float, nullable=False)
+    points_scored = Column(Float, default=0)
+    is_fastest = Column(Boolean, default=False)
+
+    constructor = relationship("Constructor")
+    race = relationship("Race")
+
+
+class PowerUnitAllocation(Base):
+    __tablename__ = "power_unit_allocations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    driver_id = Column(Integer, ForeignKey("drivers.id"))
+    component_type = Column(String, nullable=False)  # ICE, TC, MGU-K, MGU-H, ES, CE, Gearbox
+    race_id = Column(Integer, ForeignKey("races.id"))
+    is_new = Column(Boolean, default=True)
+    total_used = Column(Integer, default=1)
+
+    driver = relationship("Driver")
+    race = relationship("Race")
 
 
 class SimulationResult(Base):

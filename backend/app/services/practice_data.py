@@ -126,7 +126,11 @@ def _process_fastf1_session(session_name: str, year: int, event_name: str) -> li
         return results
 
     except Exception as e:
-        logger.warning(f"Failed to load {session_name} via FastF1: {e}")
+        msg = str(e)
+        if "not been loaded yet" in msg or "Failed to load" in msg:
+            logger.info(f"{session_name} data not yet available (session may still be in progress or data not published yet)")
+        else:
+            logger.warning(f"Failed to load {session_name} via FastF1: {e}")
         return []
 
 

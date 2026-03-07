@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 from app.database import get_db
 from app.models import Driver, Constructor, Race, Circuit, FantasyPrice, SimulationResult
-from app.schemas import SimulationResultResponse, BestTeamRequest, TeamResult, DriverResponse, ConstructorResponse, SimulationMeta
+from app.schemas import SimulationResultResponse, BestTeamRequest, TeamResult, DriverResponse, ConstructorResponse, SimulationMeta, MyTeamRequest, TeamComparisonResponse
 from app.simulation.engine import DriverParams, ConstructorParams, simulate_race_weekend
 from app.simulation.optimizer import find_best_teams, Asset
 from app.simulation.parameters import DRIVER_DEFAULTS, CONSTRUCTOR_PITSTOP_DEFAULTS
@@ -343,3 +343,60 @@ def get_best_teams(request: BestTeamRequest, db: Session = Depends(get_db)):
         ))
 
     return result
+
+
+@router.post("/my-team/compare", response_model=TeamComparisonResponse)
+def compare_my_team(request: MyTeamRequest, db: Session = Depends(get_db)):
+    """Compare user's team points vs the optimal team for a given race."""
+    drs_multiplier = 2
+
+    # Calculate my team's points
+    driver_points = []
+    for did in request.driver_ids:
+        sim = (
+            db.query(SimulationResult)
+            .filter_by(asset_type="driver", asset_id=did, race_id=request.race_id)
+            .order_by(SimulationResult.id.desc())
+            .first()
+        )
+        pts = sim.expected_pts_mean if sim else 0
+        if did == request.drs_driver_id:
+            pts *= drs_multiplier
+        driver = db.get(Driver, did)
+        driver_points.append({
+            "id": did,
+            "name": driver.code if driver else "?",
+            "points": round(pts, 2),
+            "is_drs": did == request.drs_driver_id,
+        })
+
+    constructor_points = []
+    for cid in request.constructor_ids:
+        sim = (
+            db.query(SimulationResult)
+            .filter_by(asset_type="constructor", asset_id=cid, race_id=request.race_id)
+            .order_by(SimulationResult.id.desc())
+            .first()
+        )
+        pts = sim.expected_pts_mean if sim else 0
+        constructor = db.get(Constructor, cid)
+        constructor_points.append({
+            "id": cid,
+            "name": constructor.name if constructor else "?",
+            "points": round(pts, 2),
+        })
+
+    my_total = sum(d["points"] for d in driver_points) + sum(c["points"] for c in constructor_points)
+
+    # Get optimal team points (top-1 from optimizer)
+    best_teams_request = BestTeamRequest(race_id=request.race_id, top_n=1, drs_multiplier=drs_multiplier)
+    optimal = get_best_teams(best_teams_request, db)
+    optimal_pts = optimal[0].total_points if optimal else my_total
+
+    return TeamComparisonResponse(
+        my_team_points=round(my_total, 2),
+        optimal_points=round(optimal_pts, 2),
+        points_left_on_table=round(optimal_pts - my_total, 2),
+        driver_points=driver_points,
+        constructor_points=constructor_points,
+    )

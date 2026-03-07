@@ -52,3 +52,20 @@ CONSTRUCTOR_PITSTOP_DEFAULTS = {
     "rb": 4.0,
     "cadillac": 4.0,
 }
+
+
+def get_dynamic_pitstop_defaults(db) -> dict[str, float]:
+    """Query actual pitstop data and return updated estimates per constructor ref_id.
+    Falls back to 4.0s when no data exists."""
+    from app.models import Constructor, PitstopResult
+
+    result = dict(CONSTRUCTOR_PITSTOP_DEFAULTS)
+
+    constructors = db.query(Constructor).all()
+    for c in constructors:
+        stops = db.query(PitstopResult).filter_by(constructor_id=c.id).all()
+        if stops:
+            avg_time = sum(s.time_seconds for s in stops) / len(stops)
+            result[c.ref_id] = round(avg_time, 3)
+
+    return result

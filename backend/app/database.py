@@ -74,6 +74,10 @@ def seed_db():
             name=r["circuit"],
             country=r["country"],
             overtake_difficulty=r["overtake_difficulty"],
+            high_speed=r.get("high_speed", 0.5),
+            street_circuit=r.get("street_circuit", False),
+            altitude=r.get("altitude", 0),
+            avg_degradation=r.get("avg_degradation", 0.5),
         )
         db.add(circuit)
         db.flush()
