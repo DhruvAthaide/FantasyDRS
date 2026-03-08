@@ -88,6 +88,8 @@ def seed_db():
             circuit_id=circuit.id,
             date=r["date"],
             has_sprint=r["sprint"],
+            laps=r.get("laps", 57),
+            drs_zones=r.get("drs_zones", 3),
         )
         db.add(race)
 

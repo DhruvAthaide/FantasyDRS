@@ -57,6 +57,8 @@ class Race(Base):
     circuit_id = Column(Integer, ForeignKey("circuits.id"))
     date = Column(String)
     has_sprint = Column(Boolean, default=False)
+    laps = Column(Integer, default=57)
+    drs_zones = Column(Integer, default=3)
 
     circuit = relationship("Circuit")
 
@@ -116,6 +118,23 @@ class PowerUnitAllocation(Base):
     race_id = Column(Integer, ForeignKey("races.id"))
     is_new = Column(Boolean, default=True)
     total_used = Column(Integer, default=1)
+
+    driver = relationship("Driver")
+    race = relationship("Race")
+
+
+class RaceResult(Base):
+    __tablename__ = "race_results"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    race_id = Column(Integer, ForeignKey("races.id"))
+    driver_id = Column(Integer, ForeignKey("drivers.id"))
+    qualifying_position = Column(Integer)
+    race_position = Column(Integer)
+    dnf = Column(Boolean, default=False)
+    fastest_lap = Column(Boolean, default=False)
+    dotd = Column(Boolean, default=False)
+    overtakes = Column(Integer, default=0)
 
     driver = relationship("Driver")
     race = relationship("Race")

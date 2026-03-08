@@ -53,6 +53,23 @@ CONSTRUCTOR_PITSTOP_DEFAULTS = {
     "cadillac": 4.0,
 }
 
+# Car pace variability per constructor (std dev in positions)
+# How much a team's weekend form varies from simulation to simulation.
+# 1.5 is the default — all equal under new 2026 regs.
+CONSTRUCTOR_CAR_PACE_STD = {
+    "red_bull": 1.5,
+    "mclaren": 1.5,
+    "mercedes": 1.5,
+    "ferrari": 1.5,
+    "williams": 1.5,
+    "alpine": 1.5,
+    "aston_martin": 1.5,
+    "haas": 1.5,
+    "audi": 1.5,
+    "rb": 1.5,
+    "cadillac": 1.5,
+}
+
 
 def get_dynamic_pitstop_defaults(db) -> dict[str, float]:
     """Query actual pitstop data and return updated estimates per constructor ref_id.

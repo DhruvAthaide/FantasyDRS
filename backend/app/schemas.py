@@ -39,6 +39,8 @@ class RaceResponse(BaseModel):
     date: str
     has_sprint: bool
     overtake_difficulty: float
+    laps: int = 57
+    drs_zones: int = 3
 
     model_config = {"from_attributes": True}
 

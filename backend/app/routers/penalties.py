@@ -14,9 +14,30 @@ COMPONENT_LIMITS = {
 }
 
 
+def _ensure_pu_initialized(db: Session):
+    """Auto-initialize PU allocations if none exist (season start: 1 of each component)."""
+    existing = db.query(PowerUnitAllocation).first()
+    if existing:
+        return  # Already initialized
+
+    drivers = db.query(Driver).all()
+    for driver in drivers:
+        for comp_type in COMPONENT_LIMITS:
+            db.add(PowerUnitAllocation(
+                driver_id=driver.id,
+                component_type=comp_type,
+                race_id=None,
+                is_new=True,
+                total_used=1,
+            ))
+    db.commit()
+
+
 @router.get("/status", response_model=list[PowerUnitStatus])
 def get_pu_status(db: Session = Depends(get_db)):
     """Get power unit allocation status for all drivers."""
+    _ensure_pu_initialized(db)
+
     drivers = db.query(Driver).all()
     statuses = []
 
@@ -94,11 +115,6 @@ def get_penalty_calendar(db: Session = Depends(get_db)):
 @router.post("/update")
 def update_pu_allocation(data: PowerUnitUpdateRequest, db: Session = Depends(get_db)):
     """Manually update power unit allocation after a race."""
-    existing = db.query(PowerUnitAllocation).filter_by(
-        driver_id=data.driver_id,
-        component_type=data.component_type,
-    ).order_by(PowerUnitAllocation.id.desc()).first()
-
     alloc = PowerUnitAllocation(
         driver_id=data.driver_id,
         component_type=data.component_type,
@@ -108,4 +124,45 @@ def update_pu_allocation(data: PowerUnitUpdateRequest, db: Session = Depends(get
     )
     db.add(alloc)
     db.commit()
+    return {"status": "ok"}
+
+
+@router.post("/increment")
+def increment_pu_component(
+    driver_id: int,
+    component_type: str,
+    db: Session = Depends(get_db),
+):
+    """Increment a driver's component usage by 1 (e.g., new ICE used)."""
+    if component_type not in COMPONENT_LIMITS:
+        return {"error": f"Invalid component type: {component_type}"}
+
+    _ensure_pu_initialized(db)
+
+    # Find current max total_used for this driver + component
+    latest = (
+        db.query(PowerUnitAllocation)
+        .filter_by(driver_id=driver_id, component_type=component_type)
+        .order_by(PowerUnitAllocation.id.desc())
+        .first()
+    )
+    current_total = latest.total_used if latest else 0
+
+    db.add(PowerUnitAllocation(
+        driver_id=driver_id,
+        component_type=component_type,
+        race_id=None,
+        is_new=True,
+        total_used=current_total + 1,
+    ))
+    db.commit()
+    return {"status": "ok", "new_total": current_total + 1}
+
+
+@router.post("/reset")
+def reset_pu_allocations(db: Session = Depends(get_db)):
+    """Reset all PU allocations to season start (1 of each component)."""
+    db.query(PowerUnitAllocation).delete()
+    db.commit()
+    _ensure_pu_initialized(db)
     return {"status": "ok"}
