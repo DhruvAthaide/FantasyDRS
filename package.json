@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix frontend",
+    "install": "npm install --prefix frontend"
+  },
+  "dependencies": {
+    "next": "16.1.6"
+  }
+}
