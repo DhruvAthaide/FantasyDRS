@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0f;
+  --foreground: #e8e8ed;
+  --f1-red: #e10600;
+  --f1-red-dark: #b30500;
+  --f1-red-glow: rgba(225, 6, 0, 0.3);
+  --card-bg: #12121a;
+  --card-border: #1e1e2e;
+  --card-hover: #1a1a28;
+  --surface: #15151f;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a3a;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a4a;
+}
+
+/* F1 Red accent glow */
+.glow-red {
+  box-shadow: 0 0 20px var(--f1-red-glow), 0 0 60px rgba(225, 6, 0, 0.1);
+}
+
+/* Animated gradient border */
+.gradient-border {
+  position: relative;
+  background: var(--card-bg);
+  border-radius: 12px;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--f1-red), transparent 40%, transparent 60%, var(--card-border));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Shimmer loading animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--card-bg) 25%, #1e1e30 50%, var(--card-bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Pulse glow for live indicator */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px #22c55e; }
+  50% { box-shadow: 0 0 12px #22c55e, 0 0 24px rgba(34, 197, 94, 0.3); }
+}
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Racing stripe accent */
+.racing-stripe {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 2px,
+    rgba(225, 6, 0, 0.05) 2px,
+    rgba(225, 6, 0, 0.05) 4px
+  );
+}
+
+/* Number display */
+.driver-number {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
