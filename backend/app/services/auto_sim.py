@@ -23,6 +23,7 @@ from app.simulation.engine import (
 )
 from app.simulation.parameters import (
     DRIVER_DEFAULTS, CONSTRUCTOR_PITSTOP_DEFAULTS, CONSTRUCTOR_CAR_PACE_STD,
+    get_dynamic_car_pace_std,
 )
 from app.services.practice_data import (
     fetch_practice_data, fetch_session_metadata, calculate_dynamic_params,
@@ -32,6 +33,9 @@ logger = logging.getLogger(__name__)
 
 STALENESS_HOURS = 2
 DEFAULT_SIMULATIONS = 50000
+
+# In-memory cache of last simulation metadata per race (survives between requests, lost on restart)
+_sim_meta_cache: dict[int, dict] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -209,10 +213,13 @@ def _build_constructor_params(db: Session, driver_params: list[DriverParams]) ->
     for dp in driver_params:
         driver_id_by_constructor.setdefault(dp.constructor_ref, []).append(dp.id)
 
+    # Use dynamic car pace if enough race data exists, otherwise fall back to defaults
+    dynamic_pace = get_dynamic_car_pace_std(db)
+
     params = []
     for c in constructors:
         pitstop_pts = CONSTRUCTOR_PITSTOP_DEFAULTS.get(c.ref_id, 4.0)
-        car_std = CONSTRUCTOR_CAR_PACE_STD.get(c.ref_id, 1.5)
+        car_std = dynamic_pace.get(c.ref_id, CONSTRUCTOR_CAR_PACE_STD.get(c.ref_id, 1.5))
         params.append(ConstructorParams(
             id=c.id, ref_id=c.ref_id,
             driver_ids=driver_id_by_constructor.get(c.ref_id, []),
@@ -420,15 +427,20 @@ async def run_auto_simulation(
 
     logger.info(f"Simulated {race.name} ({n_simulations} iterations, sources: {data_sources_summary})")
 
+    meta = {
+        "data_sources": data_sources_summary,
+        "has_qualifying": "qualifying" in data_sources_summary,
+        "has_long_runs": bool(long_runs),
+        "weather": weather_info,
+    }
+    _sim_meta_cache[race_id] = meta
+
     return {
         "status": "simulated",
         "race_id": race_id,
         "race_name": race.name,
         "n_simulations": n_simulations,
-        "data_sources": data_sources_summary,
-        "has_qualifying": "qualifying" in data_sources_summary,
-        "has_long_runs": bool(long_runs),
-        "weather": weather_info,
+        **meta,
         "simulated_at": now.isoformat(),
     }
 

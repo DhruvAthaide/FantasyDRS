@@ -12,7 +12,7 @@ from app.models import Driver, Constructor, Race, Circuit, FantasyPrice, Simulat
 from app.schemas import SimulationResultResponse, BestTeamRequest, TeamResult, DriverResponse, ConstructorResponse, SimulationMeta, MyTeamRequest, TeamComparisonResponse
 from app.simulation.engine import DriverParams, ConstructorParams, CircuitTraits, WeatherConfig, simulate_race_weekend
 from app.simulation.optimizer import find_best_teams, Asset
-from app.simulation.parameters import DRIVER_DEFAULTS, CONSTRUCTOR_PITSTOP_DEFAULTS, CONSTRUCTOR_CAR_PACE_STD
+from app.simulation.parameters import DRIVER_DEFAULTS, CONSTRUCTOR_PITSTOP_DEFAULTS, CONSTRUCTOR_CAR_PACE_STD, get_dynamic_car_pace_std
 from app.services.practice_data import fetch_practice_data, fetch_session_metadata, calculate_dynamic_params
 
 router = APIRouter(prefix="/api", tags=["simulation"])
@@ -240,10 +240,12 @@ def _build_constructor_params(db: Session, driver_params: list[DriverParams]) ->
     for dp in driver_params:
         driver_id_by_constructor.setdefault(dp.constructor_ref, []).append(dp.id)
 
+    dynamic_pace = get_dynamic_car_pace_std(db)
+
     params = []
     for c in constructors:
         pitstop_pts = CONSTRUCTOR_PITSTOP_DEFAULTS.get(c.ref_id, 4.0)
-        car_std = CONSTRUCTOR_CAR_PACE_STD.get(c.ref_id, 1.5)
+        car_std = dynamic_pace.get(c.ref_id, CONSTRUCTOR_CAR_PACE_STD.get(c.ref_id, 1.5))
         params.append(ConstructorParams(
             id=c.id,
             ref_id=c.ref_id,
@@ -296,7 +298,7 @@ async def run_simulation(
 @router.get("/simulation/{race_id}/cached")
 def get_cached_simulation(race_id: int, db: Session = Depends(get_db)):
     """Return cached simulation results instantly (no computation)."""
-    from app.services.auto_sim import _build_response
+    from app.services.auto_sim import _build_response, _sim_meta_cache
 
     race = db.get(Race, race_id)
     if not race:
@@ -313,12 +315,18 @@ def get_cached_simulation(race_id: int, db: Session = Depends(get_db)):
         .first()
     )
 
+    meta = _sim_meta_cache.get(race_id, {})
+
     return {
         "status": "ok",
         "race_id": race_id,
         "race_name": race.name,
         "results": sim_results,
         "simulated_at": latest.simulated_at.isoformat() if latest and latest.simulated_at else None,
+        "data_sources": meta.get("data_sources", []),
+        "has_qualifying": meta.get("has_qualifying", False),
+        "has_long_runs": meta.get("has_long_runs", False),
+        "weather": meta.get("weather"),
     }
 
 
@@ -585,20 +593,25 @@ async def batch_simulate(
             n_simulations=n_simulations,
         )
 
-        for r in results:
-            db.add(SimulationResult(
-                race_id=race.id,
-                asset_type=r.asset_type,
-                asset_id=r.asset_id,
-                expected_pts_mean=round(r.mean, 2),
-                expected_pts_median=round(r.median, 2),
-                expected_pts_std=round(r.std, 2),
-                expected_pts_p10=round(r.p10, 2),
-                expected_pts_p90=round(r.p90, 2),
-                simulated_at=datetime.utcnow(),
-            ))
-        db.commit()
-        simulated.append(race.name)
+        try:
+            for r in results:
+                db.add(SimulationResult(
+                    race_id=race.id,
+                    asset_type=r.asset_type,
+                    asset_id=r.asset_id,
+                    expected_pts_mean=round(r.mean, 2),
+                    expected_pts_median=round(r.median, 2),
+                    expected_pts_std=round(r.std, 2),
+                    expected_pts_p10=round(r.p10, 2),
+                    expected_pts_p90=round(r.p90, 2),
+                    simulated_at=datetime.utcnow(),
+                ))
+            db.commit()
+            simulated.append(race.name)
+        except Exception:
+            db.rollback()
+            logger.warning(f"Failed to save simulation results for {race.name}")
+            skipped.append(race.name)
 
     return {
         "simulated_count": len(simulated),

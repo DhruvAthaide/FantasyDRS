@@ -91,6 +91,8 @@ def get_fixture_difficulty(
 
     if asset_type == "driver":
         drivers = db.query(Driver).all()
+        if not drivers:
+            return rows
         prices = {d.id: _get_asset_price(db, "driver", d.id) for d in drivers}
         min_p, max_p = min(prices.values()), max(prices.values())
 
@@ -101,7 +103,9 @@ def get_fixture_difficulty(
 
             fixtures = []
             for race in races:
-                circuit = circuits[race.circuit_id]
+                circuit = circuits.get(race.circuit_id)
+                if circuit is None:
+                    continue
                 diff = _circuit_difficulty_for_driver(strength, circuit)
                 fixtures.append(FixtureDifficultyEntry(
                     race_id=race.id,
@@ -119,6 +123,8 @@ def get_fixture_difficulty(
             ))
     else:
         constructors_list = db.query(Constructor).all()
+        if not constructors_list:
+            return rows
         prices = {c.id: _get_asset_price(db, "constructor", c.id) for c in constructors_list}
         min_p, max_p = min(prices.values()), max(prices.values())
 
@@ -127,7 +133,9 @@ def get_fixture_difficulty(
 
             fixtures = []
             for race in races:
-                circuit = circuits[race.circuit_id]
+                circuit = circuits.get(race.circuit_id)
+                if circuit is None:
+                    continue
                 diff = _circuit_difficulty_for_constructor(strength, circuit)
                 fixtures.append(FixtureDifficultyEntry(
                     race_id=race.id,
@@ -140,7 +148,7 @@ def get_fixture_difficulty(
                 asset_type="constructor",
                 asset_id=constructor.id,
                 asset_name=constructor.name,
-                color=constructor.color,
+                color=constructor.color or "#6b7280",
                 fixtures=fixtures,
             ))
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Driver, Constructor, FantasyPrice, SimulationResult
+from app.models import Driver, Constructor, FantasyPrice, SimulationResult, Race, RaceResult
 from app.schemas import DriverResponse
 
 router = APIRouter(prefix="/api/drivers", tags=["drivers"])
@@ -45,3 +45,35 @@ def get_drivers(race_id: int | None = None, db: Session = Depends(get_db)):
             expected_pts=expected_pts,
         ))
     return result
+
+
+def _form_trend(driver_id: int, db: Session) -> str:
+    """Determine form trend from last 3 race results."""
+    results = (
+        db.query(RaceResult)
+        .filter_by(driver_id=driver_id)
+        .join(Race, Race.id == RaceResult.race_id)
+        .order_by(Race.round.desc())
+        .limit(3)
+        .all()
+    )
+    if len(results) < 2:
+        return "stable"
+    positions = [r.race_position for r in results if not r.dnf and r.race_position]
+    if len(positions) < 2:
+        return "stable"
+    recent_avg = sum(positions[:2]) / len(positions[:2])
+    older_avg = positions[-1]
+    diff = older_avg - recent_avg
+    if diff > 1.5:
+        return "improving"
+    elif diff < -1.5:
+        return "declining"
+    return "stable"
+
+
+@router.get("/trends")
+def get_driver_trends(db: Session = Depends(get_db)):
+    """Return form trend for all drivers."""
+    drivers = db.query(Driver).all()
+    return {d.id: _form_trend(d.id, db) for d in drivers}

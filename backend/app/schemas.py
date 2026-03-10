@@ -7,11 +7,11 @@ class DriverResponse(BaseModel):
     code: str
     first_name: str
     last_name: str
-    number: int
+    number: int | None = None
     constructor_id: int
     constructor_name: str
     constructor_color: str
-    country: str
+    country: str | None = None
     price: float
     expected_pts: Optional[float] = None
 

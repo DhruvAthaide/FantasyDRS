@@ -81,7 +81,7 @@ def _chip_best(chip_type: str, drivers: list[Asset], constructors: list[Asset]) 
         driver_pts = sorted([d.expected_pts for d in team.drivers], reverse=True)
         base_constructor_pts = sum(c.expected_pts for c in team.constructors)
         # Normal: best driver 2x. Extra DRS: top 3 drivers 2x
-        extra_pts = sum(driver_pts[:3]) + sum(driver_pts[3:]) + base_constructor_pts
+        extra_pts = sum(driver_pts[:3]) * 2 + sum(driver_pts[3:]) + base_constructor_pts
         return extra_pts
 
     elif chip_type == "final_fix":

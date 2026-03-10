@@ -13,6 +13,7 @@ import type {
   PricePrediction,
 } from "@/types";
 import RaceSelector from "@/components/RaceSelector";
+import InfoTooltip from "@/components/InfoTooltip";
 
 type SortKey = "price" | "xPts" | "ppm" | "xDelta" | "name";
 type SortDir = "asc" | "desc";
@@ -47,6 +48,7 @@ export default function TeamCalculator() {
   const [selectedTeamIdx, setSelectedTeamIdx] = useState(0);
   const [cachedStatus, setCachedStatus] = useState<string | null>(null);
   const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [driverTrends, setDriverTrends] = useState<Record<number, string>>({});
 
   useEffect(() => {
     Promise.all([api.getDrivers(), api.getConstructors(), api.getRaces(), api.getNextRace()]).then(
@@ -58,6 +60,7 @@ export default function TeamCalculator() {
         }
       }
     ).catch(() => {});
+    api.getDriverTrends().then(setDriverTrends).catch(() => {});
   }, []);
 
   // Auto-load cached predictions when race is selected
@@ -228,11 +231,12 @@ export default function TeamCalculator() {
     );
   }, [constructors, constructorSearch, constructorSort, simResults, pricePredictions]);
 
-  const SortHeader = ({ sortState, column, label, setSortFn }: {
+  const SortHeader = ({ sortState, column, label, setSortFn, tooltip }: {
     sortState: { key: SortKey; dir: SortDir };
     column: SortKey;
     label: string;
     setSortFn: (s: { key: SortKey; dir: SortDir }) => void;
+    tooltip?: string;
   }) => (
     <th
       className="px-3 py-3 text-right cursor-pointer hover:text-gray-300 transition-colors select-none group"
@@ -240,6 +244,7 @@ export default function TeamCalculator() {
     >
       <span className="inline-flex items-center gap-1">
         {label}
+        {tooltip && <InfoTooltip text={tooltip} />}
         <span className="text-[8px] opacity-50 group-hover:opacity-100 transition-opacity">
           {sortState.key === column ? (sortState.dir === "desc" ? "\u25BC" : "\u25B2") : "\u25BC"}
         </span>
@@ -394,9 +399,9 @@ export default function TeamCalculator() {
                       </span>
                     </th>
                     <SortHeader sortState={driverSort} column="price" label="Price" setSortFn={setDriverSort} />
-                    <SortHeader sortState={driverSort} column="xPts" label="xPts" setSortFn={setDriverSort} />
-                    <SortHeader sortState={driverSort} column="ppm" label="PPM" setSortFn={setDriverSort} />
-                    <SortHeader sortState={driverSort} column="xDelta" label="x&Delta;$" setSortFn={setDriverSort} />
+                    <SortHeader sortState={driverSort} column="xPts" label="xPts" setSortFn={setDriverSort} tooltip="Expected Points — average predicted score from 50,000 Monte Carlo simulations" />
+                    <SortHeader sortState={driverSort} column="ppm" label="PPM" setSortFn={setDriverSort} tooltip="Points Per Million — expected points divided by price. Higher = better value" />
+                    <SortHeader sortState={driverSort} column="xDelta" label="x&Delta;$" setSortFn={setDriverSort} tooltip="Predicted Price Change — expected price movement based on performance vs current price" />
                     <th className="px-3 py-3 text-center w-24">Lock</th>
                     {hasSimData && <th className="px-3 py-3 text-center w-10" title="DRS Boost">DRS</th>}
                   </tr>
@@ -428,6 +433,8 @@ export default function TeamCalculator() {
                               </div>
                               <div className="flex items-center gap-1.5 mt-0.5">
                                 <span className="text-[10px] font-mono text-gray-500">{driver.code}</span>
+                                {driverTrends[driver.id] === "improving" && <span className="text-[9px]" style={{ color: "var(--neon-green)" }} title="Improving form">&#9650;</span>}
+                                {driverTrends[driver.id] === "declining" && <span className="text-[9px]" style={{ color: "var(--f1-red)" }} title="Declining form">&#9660;</span>}
                                 <span className="text-[10px] text-gray-700">#{driver.number}</span>
                                 <span className="text-[10px] text-gray-700">&middot;</span>
                                 <span className="text-[10px] text-gray-600">{driver.constructor_name}</span>
@@ -555,9 +562,9 @@ export default function TeamCalculator() {
                       </span>
                     </th>
                     <SortHeader sortState={constructorSort} column="price" label="Price" setSortFn={setConstructorSort} />
-                    <SortHeader sortState={constructorSort} column="xPts" label="xPts" setSortFn={setConstructorSort} />
-                    <SortHeader sortState={constructorSort} column="ppm" label="PPM" setSortFn={setConstructorSort} />
-                    <SortHeader sortState={constructorSort} column="xDelta" label="x&Delta;$" setSortFn={setConstructorSort} />
+                    <SortHeader sortState={constructorSort} column="xPts" label="xPts" setSortFn={setConstructorSort} tooltip="Expected Points — average predicted score from 50,000 Monte Carlo simulations" />
+                    <SortHeader sortState={constructorSort} column="ppm" label="PPM" setSortFn={setConstructorSort} tooltip="Points Per Million — expected points divided by price. Higher = better value" />
+                    <SortHeader sortState={constructorSort} column="xDelta" label="x&Delta;$" setSortFn={setConstructorSort} tooltip="Predicted Price Change — expected price movement based on performance vs current price" />
                     <th className="px-3 py-3 text-center w-24">Lock</th>
                   </tr>
                 </thead>

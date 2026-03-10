@@ -118,7 +118,7 @@ def get_scorecard(race_id: int, db: Session = Depends(get_db)):
         # Compute actual fantasy points
         q_pts = score_qualifying_driver(r.qualifying_position)
         r_pts = 0 if r.dnf else score_race_position(r.race_position)
-        positions_gained = (r.qualifying_position or 0) - (r.race_position or 0) if not r.dnf else 0
+        positions_gained = (r.qualifying_position - r.race_position) if not r.dnf and r.qualifying_position is not None and r.race_position is not None else 0
         pos_pts = positions_gained  # +1 per position gained, -1 per lost
         ot_pts = r.overtakes
         fl_pts = FASTEST_LAP_PTS if r.fastest_lap else 0

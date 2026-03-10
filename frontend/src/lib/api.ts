@@ -45,6 +45,9 @@ export const api = {
   getDrivers: (raceId?: number) =>
     fetchApi<Driver[]>(`/api/drivers${raceId ? `?race_id=${raceId}` : ""}`),
 
+  getDriverTrends: () =>
+    fetchApi<Record<number, string>>("/api/drivers/trends"),
+
   getConstructors: (raceId?: number) =>
     fetchApi<Constructor[]>(`/api/constructors${raceId ? `?race_id=${raceId}` : ""}`),
 
@@ -58,7 +61,7 @@ export const api = {
     }),
 
   getCachedSimulation: (raceId: number) =>
-    fetchApi<{ status: string; race_id: number; race_name: string; results: SimulationResult[]; simulated_at: string | null }>(`/api/simulation/${raceId}/cached`),
+    fetchApi<{ status: string; race_id: number; race_name: string; results: SimulationResult[]; simulated_at: string | null; data_sources?: string[]; has_qualifying?: boolean; has_long_runs?: boolean; weather?: { air_temp: number; track_temp: number; humidity: number; wind_speed: number; rainfall: boolean } | null }>(`/api/simulation/${raceId}/cached`),
 
   triggerRefresh: () =>
     fetchApi<{ ingestion: unknown[]; simulation: unknown }>("/api/refresh", { method: "POST" }),
@@ -127,7 +130,7 @@ export const api = {
   suggestTransfers: (data: { driver_ids: number[]; constructor_ids: number[]; drs_driver_id: number; race_id: number; budget?: number }) =>
     fetchApi<SwapSuggestion[]>("/api/transfers/suggest", {
       method: "POST",
-      body: JSON.stringify({ budget: 100, ...data }),
+      body: JSON.stringify(data),
     }),
 
   simulateLeague: (data: { my_team: RivalTeam; rivals: RivalTeam[]; race_id: number }) =>

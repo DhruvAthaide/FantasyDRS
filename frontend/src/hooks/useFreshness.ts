@@ -6,12 +6,24 @@ import type { SimulationResult } from "@/types";
 
 const POLL_INTERVAL = 15 * 60 * 1000; // 15 minutes
 
+interface WeatherInfo {
+  air_temp: number;
+  track_temp: number;
+  humidity: number;
+  wind_speed: number;
+  rainfall: boolean;
+}
+
 interface FreshnessState {
   results: SimulationResult[];
   lastUpdated: string | null;
   isLoading: boolean;
   status: string;
   raceName: string;
+  dataSources: string[];
+  hasQualifying: boolean;
+  hasLongRuns: boolean;
+  weather: WeatherInfo | null;
 }
 
 export function useFreshness(raceId: number | null) {
@@ -21,6 +33,10 @@ export function useFreshness(raceId: number | null) {
     isLoading: false,
     status: "idle",
     raceName: "",
+    dataSources: [],
+    hasQualifying: false,
+    hasLongRuns: false,
+    weather: null,
   });
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -36,6 +52,10 @@ export function useFreshness(raceId: number | null) {
         isLoading: false,
         status: data.status,
         raceName: data.race_name || "",
+        dataSources: data.data_sources || [],
+        hasQualifying: data.has_qualifying || false,
+        hasLongRuns: data.has_long_runs || false,
+        weather: data.weather || null,
       });
     } catch {
       setState((prev) => ({ ...prev, isLoading: false, status: "error" }));

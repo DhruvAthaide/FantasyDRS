@@ -32,6 +32,9 @@ export default function LeaguePage() {
       setHasTeam(!!getMyTeam());
       setRivals(getRivals());
     }).catch(() => {});
+    api.getNextRace().then((next) => {
+      if (next) setSelectedRaceId(next.id);
+    }).catch(() => {});
   }, []);
 
   const startAddRival = () => {
@@ -135,7 +138,7 @@ export default function LeaguePage() {
             {/* Existing rivals */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {rivals.map((rival, idx) => (
-                <div key={idx} className="glass-card rounded-xl p-4">
+                <div key={`${rival.name}-${rival.driver_ids.join(",")}`} className="glass-card rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-sm">{rival.name}</span>
                     <button onClick={() => removeRival(idx)} className="text-[10px] font-semibold transition-colors" style={{ color: "var(--f1-red)" }}>Remove</button>

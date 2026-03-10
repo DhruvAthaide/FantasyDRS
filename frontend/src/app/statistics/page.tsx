@@ -5,11 +5,15 @@ import { motion } from "framer-motion";
 import { api } from "@/lib/api";
 import type { Driver, Constructor, Race, ScoreBreakdown, FixtureDifficultyRow } from "@/types";
 import RaceSelector from "@/components/RaceSelector";
+import InfoTooltip from "@/components/InfoTooltip";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend,
 } from "recharts";
 
 type Tab = "drivers" | "constructors" | "comparison" | "breakdown" | "fixtures";
+
+const XPTS_TOOLTIP = "Expected Points — average predicted score from 50,000 Monte Carlo simulations";
+const PPM_TOOLTIP = "Points Per Million — expected points divided by price. Higher = better value";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -41,6 +45,9 @@ export default function Statistics() {
     Promise.all([api.getDrivers(), api.getConstructors(), api.getRaces()]).then(
       ([d, c, r]) => { setDrivers(d); setConstructors(c); setRaces(r); }
     ).catch(() => {});
+    api.getNextRace().then((next) => {
+      if (next) setSelectedRaceId(next.id);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -147,9 +154,15 @@ export default function Statistics() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--card-border)" }}>
-                  {["#", "Driver", "Price", "xPts", "Pts/M"].map((h, i) => (
-                    <th key={h} className={`px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold ${i >= 2 ? "text-right" : "text-left"}`}>{h}</th>
-                  ))}
+                  <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-left">#</th>
+                  <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-left">Driver</th>
+                  <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">Price</th>
+                  <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                    <span className="inline-flex items-center">xPts<InfoTooltip text={XPTS_TOOLTIP} /></span>
+                  </th>
+                  <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                    <span className="inline-flex items-center">Pts/M<InfoTooltip text={PPM_TOOLTIP} /></span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -203,9 +216,14 @@ export default function Statistics() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--card-border)" }}>
-                  {["Constructor", "Price", "xPts", "Pts/M"].map((h, i) => (
-                    <th key={h} className={`px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold ${i >= 1 ? "text-right" : "text-left"}`}>{h}</th>
-                  ))}
+                  <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-left">Constructor</th>
+                  <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">Price</th>
+                  <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                    <span className="inline-flex items-center">xPts<InfoTooltip text={XPTS_TOOLTIP} /></span>
+                  </th>
+                  <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                    <span className="inline-flex items-center">Pts/M<InfoTooltip text={PPM_TOOLTIP} /></span>
+                  </th>
                 </tr>
               </thead>
               <tbody>

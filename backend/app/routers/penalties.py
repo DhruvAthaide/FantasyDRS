@@ -71,6 +71,7 @@ def get_pu_status(db: Session = Depends(get_db)):
 @router.get("/calendar", response_model=list[PenaltyCalendarEntry])
 def get_penalty_calendar(db: Session = Depends(get_db)):
     """Get penalty-friendly race recommendations for at-risk drivers."""
+    _ensure_pu_initialized(db)
     drivers = db.query(Driver).all()
     races = db.query(Race).order_by(Race.round).all()
 

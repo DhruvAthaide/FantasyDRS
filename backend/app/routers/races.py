@@ -53,8 +53,10 @@ def get_next_race(db: Session = Depends(get_db)):
         # This race is either in the future or today but not yet finished
         return _race_to_response(race, db.get(Circuit, race.circuit_id))
 
-    # Fallback: last race of the season
+    # Fallback: last race of the season (only if it hasn't passed)
     race = db.query(Race).order_by(Race.round.desc()).first()
     if not race:
+        return None
+    if race.date and race.date < today_str:
         return None
     return _race_to_response(race, db.get(Circuit, race.circuit_id))

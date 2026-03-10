@@ -18,6 +18,7 @@ export default function MyTeamPage() {
   const [comparison, setComparison] = useState<TeamComparisonResponse | null>(null);
   const [comparing, setComparing] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [autoFilling, setAutoFilling] = useState(false);
 
   useEffect(() => {
     Promise.all([api.getDrivers(), api.getConstructors(), api.getRaces()]).then(
@@ -33,21 +34,24 @@ export default function MyTeamPage() {
         }
       }
     ).catch(() => {});
+    api.getNextRace().then((next) => {
+      if (next) setSelectedRaceId(next.id);
+    }).catch(() => {});
   }, []);
 
   const toggleDriver = (id: number) => {
     setSelectedDrivers((prev) => {
       if (prev.includes(id)) {
-        return prev.filter((x) => x !== id);
+        const remaining = prev.filter((x) => x !== id);
+        // If removing the DRS driver, fall back to first remaining driver
+        if (drsDriverId === id) {
+          setDrsDriverId(remaining[0] || null);
+        }
+        return remaining;
       }
       if (prev.length >= 5) return prev;
       return [...prev, id];
     });
-    // Handle DRS separately
-    if (selectedDrivers.includes(id) && drsDriverId === id) {
-      const remaining = selectedDrivers.filter((x) => x !== id);
-      setDrsDriverId(remaining[0] || null);
-    }
     setComparison(null);
     setSaved(false);
   };
@@ -91,6 +95,32 @@ export default function MyTeamPage() {
     setComparing(false);
   };
 
+  const handleAutoFill = async () => {
+    if (!selectedRaceId) return;
+    setAutoFilling(true);
+    try {
+      const teams = await api.getBestTeams({
+        budget: 100,
+        race_id: selectedRaceId,
+        include_drivers: [],
+        exclude_drivers: [],
+        include_constructors: [],
+        exclude_constructors: [],
+        drs_multiplier: 2,
+        top_n: 1,
+      });
+      if (teams.length > 0) {
+        const best = teams[0];
+        setSelectedDrivers(best.drivers.map((d: any) => d.id));
+        setSelectedConstructors(best.constructors.map((c: any) => c.id));
+        setDrsDriverId(best.drs_driver?.id || null);
+        setSaved(false);
+        setComparison(null);
+      }
+    } catch { /* sim may not exist */ }
+    setAutoFilling(false);
+  };
+
   return (
     <div className="space-y-8">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -123,6 +153,25 @@ export default function MyTeamPage() {
           <span>{selectedConstructors.length}/2 Constructors</span>
           <span style={{ color: drsDriverId ? "var(--neon-purple)" : "rgba(255,255,255,0.4)" }}>{drsDriverId ? "DRS set" : "No DRS driver"}</span>
           {totalCost > 100 && <span className="font-semibold" style={{ color: "var(--f1-red)" }}>Over budget!</span>}
+        </div>
+        <div className="flex gap-2 mt-3">
+          <button
+            onClick={handleAutoFill}
+            disabled={!selectedRaceId || autoFilling}
+            className="px-4 py-2 rounded-lg text-xs font-bold transition-all"
+            style={{
+              background: selectedRaceId ? "var(--neon-cyan)" : "var(--card-border)",
+              color: selectedRaceId ? "#050508" : "rgba(255,255,255,0.3)",
+              opacity: autoFilling ? 0.6 : 1,
+            }}
+          >
+            {autoFilling ? "Optimizing..." : "Fill Optimal Team"}
+          </button>
+          {!selectedRaceId && (
+            <span className="text-[10px] self-center" style={{ color: "rgba(255,255,255,0.3)" }}>
+              Select a race first
+            </span>
+          )}
         </div>
       </motion.div>
 

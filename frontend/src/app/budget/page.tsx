@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import type { Race, PricePrediction } from "@/types";
 import RaceSelector from "@/components/RaceSelector";
+import InfoTooltip from "@/components/InfoTooltip";
 
 export default function BudgetBuilder() {
   const [races, setRaces] = useState<Race[]>([]);
@@ -14,7 +15,12 @@ export default function BudgetBuilder() {
   const [sortKey, setSortKey] = useState<"price" | "ppm" | "change">("ppm");
   const [filterType, setFilterType] = useState<"all" | "driver" | "constructor">("all");
 
-  useEffect(() => { api.getRaces().then(setRaces).catch(() => {}); }, []);
+  useEffect(() => {
+    api.getRaces().then(setRaces).catch(() => {});
+    api.getNextRace().then((next) => {
+      if (next) setSelectedRaceId(next.id);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!selectedRaceId) return;
@@ -146,11 +152,22 @@ export default function BudgetBuilder() {
           <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr style={{ borderBottom: "1px solid var(--card-border)" }}>
-                {["Asset", "Type", "Price", "Avg PPM", "Predicted", "Category", "P(Up)", "P(Down)"].map((h, i) => (
-                  <th key={h} className={`px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold ${i >= 2 ? "text-right" : "text-left"} ${i === 5 ? "!text-center" : ""}`}>
-                    {h}
-                  </th>
-                ))}
+                <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-left">Asset</th>
+                <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-left">Type</th>
+                <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">Price</th>
+                <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                  <span className="inline-flex items-center">Avg PPM<InfoTooltip text="Average Points Per Million across simulated races" /></span>
+                </th>
+                <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                  <span className="inline-flex items-center">Predicted<InfoTooltip text="Expected price movement based on predicted performance vs current price" /></span>
+                </th>
+                <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold !text-center">Category</th>
+                <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                  <span className="inline-flex items-center">P(Up)<InfoTooltip text="Probability of price increasing based on simulation" /></span>
+                </th>
+                <th className="px-5 py-3.5 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                  <span className="inline-flex items-center">P(Down)<InfoTooltip text="Probability of price decreasing based on simulation" /></span>
+                </th>
               </tr>
             </thead>
             <tbody>

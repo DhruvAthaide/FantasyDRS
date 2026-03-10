@@ -7,6 +7,7 @@ import { getMyTeam } from "@/lib/storage";
 import type { SavedTeam } from "@/lib/storage";
 import type { Race, DrsAnalysis } from "@/types";
 import RaceSelector from "@/components/RaceSelector";
+import InfoTooltip from "@/components/InfoTooltip";
 
 const TIER_STYLES: Record<string, { bg: string; color: string; label: string }> = {
   safe: { bg: "rgba(34,197,94,0.15)", color: "#22c55e", label: "Safe Pick" },
@@ -14,6 +15,8 @@ const TIER_STYLES: Record<string, { bg: string; color: string; label: string }> 
   neutral: { bg: "rgba(107,114,128,0.15)", color: "#9ca3af", label: "Neutral" },
   avoid: { bg: "rgba(239,68,68,0.15)", color: "#ef4444", label: "Avoid" },
 };
+
+const TIER_TOOLTIP = "Safe: low variance, reliable. Upside: high ceiling, moderate risk. Neutral: average expected return. Avoid: poor risk-reward ratio.";
 
 export default function DrsAnalysisPage() {
   const [races, setRaces] = useState<Race[]>([]);
@@ -27,6 +30,9 @@ export default function DrsAnalysisPage() {
   useEffect(() => {
     setMyTeam(getMyTeam());
     api.getRaces().then(setRaces).catch(() => {});
+    api.getNextRace().then((next) => {
+      if (next) setSelectedRaceId(next.id);
+    }).catch(() => {});
   }, []);
 
   const handleAnalyze = async () => {
@@ -140,10 +146,10 @@ export default function DrsAnalysisPage() {
                         <span className="text-[11px] font-mono font-bold whitespace-nowrap">{r.extra_from_drs >= 0 ? "+" : ""}{r.extra_from_drs.toFixed(1)}</span>
                       </div>
                     </div>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold shrink-0"
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold shrink-0 inline-flex items-center gap-0.5"
                       style={{ background: tier.bg, color: tier.color }}
                     >
-                      {tier.label}
+                      {tier.label}<InfoTooltip text={TIER_TOOLTIP} />
                     </span>
                   </div>
                 );
@@ -157,9 +163,22 @@ export default function DrsAnalysisPage() {
               <table className="w-full text-sm" style={{ minWidth: 650 }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid var(--card-border)" }}>
-                    {["Driver", "1x Pts", "2x Pts", "DRS Extra", "P10 (2x)", "P90 (2x)", "Risk", "Tier"].map((h, i) => (
-                      <th key={h} className={`px-4 py-3 text-[10px] uppercase tracking-widest text-gray-600 font-semibold ${i === 0 ? "text-left" : "text-right"}`}>{h}</th>
-                    ))}
+                    <th className="px-4 py-3 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-left">Driver</th>
+                    <th className="px-4 py-3 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">1x Pts</th>
+                    <th className="px-4 py-3 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">2x Pts</th>
+                    <th className="px-4 py-3 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">DRS Extra</th>
+                    <th className="px-4 py-3 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                      <span className="inline-flex items-center">P10 (2x)<InfoTooltip text="10th percentile — worst-case scenario. 90% of simulations scored above this." /></span>
+                    </th>
+                    <th className="px-4 py-3 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                      <span className="inline-flex items-center">P90 (2x)<InfoTooltip text="90th percentile — best-case scenario. Only 10% of simulations scored above this." /></span>
+                    </th>
+                    <th className="px-4 py-3 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                      <span className="inline-flex items-center">Risk<InfoTooltip text="Volatility metric (0-100%). Higher means more unpredictable outcomes. Low risk = consistent scorer, high risk = boom-or-bust." /></span>
+                    </th>
+                    <th className="px-4 py-3 text-[10px] uppercase tracking-widest text-gray-600 font-semibold text-right">
+                      <span className="inline-flex items-center">Tier<InfoTooltip text={TIER_TOOLTIP} /></span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

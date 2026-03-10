@@ -72,9 +72,10 @@ CONSTRUCTOR_CAR_PACE_STD = {
 
 
 def get_dynamic_pitstop_defaults(db) -> dict[str, float]:
-    """Query actual pitstop data and return updated estimates per constructor ref_id.
-    Falls back to 4.0s when no data exists."""
+    """Query actual pitstop data and return updated expected points per constructor ref_id.
+    Falls back to 4.0 pts when no data exists."""
     from app.models import Constructor, PitstopResult
+    from app.simulation.scoring import score_pitstop_time
 
     result = dict(CONSTRUCTOR_PITSTOP_DEFAULTS)
 
@@ -82,7 +83,35 @@ def get_dynamic_pitstop_defaults(db) -> dict[str, float]:
     for c in constructors:
         stops = db.query(PitstopResult).filter_by(constructor_id=c.id).all()
         if stops:
-            avg_time = sum(s.time_seconds for s in stops) / len(stops)
-            result[c.ref_id] = round(avg_time, 3)
+            avg_pts = sum(score_pitstop_time(s.time_seconds) for s in stops) / len(stops)
+            result[c.ref_id] = round(avg_pts, 3)
+
+    return result
+
+
+def get_dynamic_car_pace_std(db) -> dict[str, float]:
+    """Compute per-constructor car pace variability from qualifying results.
+    Uses standard deviation of qualifying positions across races.
+    Falls back to 1.5 when fewer than 2 race results exist."""
+    import statistics
+    from app.models import Constructor, Driver, RaceResult
+
+    result = dict(CONSTRUCTOR_CAR_PACE_STD)
+
+    constructors = db.query(Constructor).all()
+    for c in constructors:
+        driver_ids = [d.id for d in db.query(Driver).filter_by(constructor_id=c.id).all()]
+        if not driver_ids:
+            continue
+
+        quali_positions = [
+            r.qualifying_position
+            for r in db.query(RaceResult).filter(RaceResult.driver_id.in_(driver_ids)).all()
+            if r.qualifying_position is not None
+        ]
+
+        if len(quali_positions) >= 4:
+            std = statistics.stdev(quali_positions)
+            result[c.ref_id] = round(max(0.5, min(4.0, std)), 2)
 
     return result

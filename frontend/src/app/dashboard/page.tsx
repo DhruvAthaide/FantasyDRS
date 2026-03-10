@@ -88,7 +88,7 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const { results: simResults, timeSinceUpdate, hasCachedData } = useFreshness(nextRace?.id ?? null);
+  const { results: simResults, timeSinceUpdate, hasCachedData, dataSources, hasQualifying, hasLongRuns, weather } = useFreshness(nextRace?.id ?? null);
 
   const countdown = useCountdown(nextRace?.date || "2026-03-08");
   const isRaceComplete = countdown.days === 0 && countdown.hours === 0 && countdown.mins === 0 && countdown.secs === 0;
@@ -142,6 +142,21 @@ export default function DashboardPage() {
                 <p className="text-[10px] font-mono mt-2" style={{ color: "var(--neon-cyan)" }}>
                   Predictions updated {timeSinceUpdate < 1 ? "just now" : `${timeSinceUpdate}min ago`}
                 </p>
+              )}
+              {hasCachedData && (
+                <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                  {weather && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono" style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.5)" }}>
+                      {weather.rainfall ? "🌧" : "☀"} {Math.round(weather.track_temp)}°C track
+                      {weather.wind_speed > 0 && ` · ${weather.wind_speed.toFixed(0)}km/h wind`}
+                    </span>
+                  )}
+                  {dataSources.length > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono" style={{ background: hasQualifying ? "rgba(0,255,135,0.08)" : "rgba(255,255,255,0.05)", color: hasQualifying ? "var(--neon-green)" : "rgba(255,255,255,0.4)" }}>
+                      {hasQualifying ? "Quali data" : hasLongRuns ? "Practice data" : "Defaults"}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 

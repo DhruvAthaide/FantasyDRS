@@ -48,7 +48,10 @@ export default function WhatIfPage() {
       setRaces(r);
       setDrivers(d);
       setConstructors(c);
-    });
+    }).catch(() => {});
+    api.getNextRace().then((next) => {
+      if (next) setSelectedRaceId(next.id);
+    }).catch(() => {});
   }, []);
 
   const toggleDriver = (id: number) => {

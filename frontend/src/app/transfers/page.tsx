@@ -14,10 +14,33 @@ export default function TransfersPage() {
   const [loading, setLoading] = useState(false);
   const [hasTeam, setHasTeam] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [teamCost, setTeamCost] = useState<number | null>(null);
+
+  const budgetCap = 100;
+  const remainingBudget = teamCost !== null ? budgetCap - teamCost : null;
 
   useEffect(() => {
     api.getRaces().then(setRaces).catch(() => {});
-    setHasTeam(!!getMyTeam());
+    api.getNextRace().then((next) => {
+      if (next) setSelectedRaceId(next.id);
+    }).catch(() => {});
+
+    const team = getMyTeam();
+    setHasTeam(!!team);
+
+    if (team) {
+      Promise.all([api.getDrivers(), api.getConstructors()])
+        .then(([drivers, constructors]) => {
+          const driverCost = drivers
+            .filter((d) => team.driver_ids.includes(d.id))
+            .reduce((sum, d) => sum + d.price, 0);
+          const constructorCost = constructors
+            .filter((c) => team.constructor_ids.includes(c.id))
+            .reduce((sum, c) => sum + c.price, 0);
+          setTeamCost(driverCost + constructorCost);
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const handleAnalyze = async () => {
@@ -30,6 +53,7 @@ export default function TransfersPage() {
         constructor_ids: team.constructor_ids,
         drs_driver_id: team.drs_driver_id,
         race_id: selectedRaceId,
+        budget: remainingBudget ?? budgetCap,
       });
       setSuggestions(data);
       setSearched(true);
@@ -61,7 +85,7 @@ export default function TransfersPage() {
       )}
 
       {hasTeam && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="flex flex-wrap items-center gap-4">
           <button
             onClick={handleAnalyze}
             disabled={!selectedRaceId || loading}
@@ -70,6 +94,23 @@ export default function TransfersPage() {
           >
             {loading ? "Analyzing swaps..." : "Find Best Swaps"}
           </button>
+
+          {remainingBudget !== null && (
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: "var(--neon-cyan)" }}>
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+              <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>
+                Budget remaining:
+              </span>
+              <span
+                className="text-xs font-mono font-bold"
+                style={{ color: remainingBudget >= 0 ? "var(--neon-green)" : "var(--f1-red)" }}
+              >
+                ${remainingBudget.toFixed(1)}M
+              </span>
+            </div>
+          )}
         </motion.div>
       )}
 

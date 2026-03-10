@@ -15,7 +15,7 @@ def _compute_driver_race_pts(r: RaceResult) -> float:
     """Compute total fantasy points for a single driver-race result."""
     q_pts = score_qualifying_driver(r.qualifying_position)
     r_pts = 0 if r.dnf else score_race_position(r.race_position)
-    pos_pts = (r.qualifying_position - r.race_position) if not r.dnf else 0
+    pos_pts = (r.qualifying_position - r.race_position) if not r.dnf and r.qualifying_position is not None and r.race_position is not None else 0
     ot_pts = r.overtakes or 0
     fl_pts = FASTEST_LAP_PTS if r.fastest_lap else 0
     dotd_pts = DRIVER_OF_THE_DAY_PTS if r.dotd else 0

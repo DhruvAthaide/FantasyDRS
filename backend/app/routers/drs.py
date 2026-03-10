@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -10,7 +10,10 @@ router = APIRouter(prefix="/api/drs", tags=["drs"])
 @router.get("/analyze")
 def analyze_drs(race_id: int, driver_ids: str | None = None, db: Session = Depends(get_db)):
     """Analyze DRS (2x captain) value for each driver at a given race."""
-    filter_ids = [int(x) for x in driver_ids.split(",")] if driver_ids else None
+    try:
+        filter_ids = [int(x) for x in driver_ids.split(",")] if driver_ids else None
+    except ValueError:
+        raise HTTPException(status_code=422, detail="driver_ids must be comma-separated integers")
 
     drivers = db.query(Driver).all()
     results = []

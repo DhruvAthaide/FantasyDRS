@@ -92,8 +92,8 @@ def what_if(request: WhatIfRequest, db: Session = Depends(get_db)):
     mod_constructor_set = set(request.modified_constructor_ids)
 
     swaps = []
-    driver_outs = list(orig_driver_set - mod_driver_set)
-    driver_ins = list(mod_driver_set - orig_driver_set)
+    driver_outs = sorted(orig_driver_set - mod_driver_set)
+    driver_ins = sorted(mod_driver_set - orig_driver_set)
     for i, out_id in enumerate(driver_outs):
         out_entry = next((b for b in orig_breakdown if b["asset_id"] == out_id and b["asset_type"] == "driver"), None)
         if i < len(driver_ins):
@@ -107,8 +107,8 @@ def what_if(request: WhatIfRequest, db: Session = Depends(get_db)):
                     "diff": round(in_entry["scored_pts"] - out_entry["scored_pts"], 2),
                 })
 
-    constructor_outs = list(orig_constructor_set - mod_constructor_set)
-    constructor_ins = list(mod_constructor_set - orig_constructor_set)
+    constructor_outs = sorted(orig_constructor_set - mod_constructor_set)
+    constructor_ins = sorted(mod_constructor_set - orig_constructor_set)
     for i, out_id in enumerate(constructor_outs):
         out_entry = next((b for b in orig_breakdown if b["asset_id"] == out_id and b["asset_type"] == "constructor"), None)
         if i < len(constructor_ins):

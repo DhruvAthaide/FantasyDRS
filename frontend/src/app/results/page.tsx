@@ -110,6 +110,9 @@ export default function ResultsPage() {
       setRaces(r);
       setDrivers(d);
     }).catch(() => {});
+    api.getNextRace().then((next) => {
+      if (next) setSelectedRaceId(next.id);
+    }).catch(() => {});
   }, []);
 
   const initializeEntries = useCallback(

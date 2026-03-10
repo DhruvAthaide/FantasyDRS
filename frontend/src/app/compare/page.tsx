@@ -13,6 +13,7 @@ import {
 import { api } from "@/lib/api";
 import type { Race, Driver, CompareDriverResult } from "@/types";
 import RaceSelector from "@/components/RaceSelector";
+import InfoTooltip from "@/components/InfoTooltip";
 
 const DIMENSIONS = [
   "Pace",
@@ -22,6 +23,15 @@ const DIMENSIONS = [
   "Circuit Fit",
   "Risk",
 ] as const;
+
+const DIMENSION_TOOLTIPS: Record<(typeof DIMENSIONS)[number], string> = {
+  Pace: "Qualifying and race pace rating normalized 0-100",
+  Consistency: "How predictable the driver's results are. Higher = more reliable",
+  Value: "Points per million — how cost-effective the driver is",
+  Form: "Recent performance trend: improving, stable, or declining",
+  "Circuit Fit": "How well the driver's strengths match this specific circuit",
+  Risk: "DNF/incident probability. Lower = safer pick",
+};
 
 const DIMENSION_KEYS: Record<(typeof DIMENSIONS)[number], keyof CompareDriverResult> = {
   Pace: "pace_rating",
@@ -403,8 +413,8 @@ export default function ComparePage() {
               <div className="space-y-5">
                 {DIMENSIONS.map((dim) => (
                   <div key={dim}>
-                    <div className="text-xs font-semibold text-gray-400 mb-2">
-                      {dim}
+                    <div className="text-xs font-semibold text-gray-400 mb-2 inline-flex items-center">
+                      {dim}<InfoTooltip text={DIMENSION_TOOLTIPS[dim]} />
                     </div>
                     <div className="space-y-1.5">
                       {results.map((d) => {
