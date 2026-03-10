@@ -413,7 +413,10 @@ def fetch_race_results(year: int, event_name: str, db=None) -> list[dict] | None
             driver_id = driver_map[code]
 
             # Grid position
-            grid = int(row.get("GridPosition", 22))
+            try:
+                grid = int(float(row.get("GridPosition", 22)))
+            except (ValueError, TypeError):
+                grid = 22
             if grid == 0:
                 grid = 22  # Pit lane start
 
