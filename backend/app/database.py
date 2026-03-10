@@ -5,7 +5,8 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from app.models import Base, Driver, Constructor, Circuit, Race, FantasyPrice
 
-DATABASE_URL = "sqlite:///./f1fantasy.db"
+DB_PATH = Path(__file__).parent.parent / "f1fantasy.db"
+DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -30,6 +31,9 @@ def seed_db():
         return
 
     data_path = Path(__file__).parent.parent / "data" / "seed_data.json"
+    if not data_path.exists():
+        db.close()
+        return
     with open(data_path) as f:
         data = json.load(f)
 
