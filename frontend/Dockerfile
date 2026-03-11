@@ -1,10 +1,10 @@
-FROM node:20-slim AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 
 # Install deps first (cached layer)
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install
 
 # Copy source
 COPY . .
