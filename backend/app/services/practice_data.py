@@ -432,20 +432,158 @@ def calculate_dynamic_params(
     return results
 
 
-def fetch_race_results(year: int, event_name: str, db=None, driver_map: dict | None = None) -> list[dict] | None:
-    """Fetch race results from FastF1 and map to driver_ids.
+def _fetch_results_openf1(year: int, event_name: str, driver_number_map: dict[int, int]) -> list[dict] | None:
+    """Fetch race results from OpenF1 API (api.openf1.org).
 
-    Returns list of dicts matching DriverResultInput schema, or None if unavailable.
-    Handles edge cases: DNS, lapped drivers, DSQ, reserve drivers.
+    Uses streaming position data — takes the last reported position per driver
+    as the final race result.  Falls back to this when FastF1/Ergast is unavailable.
+
+    ``driver_number_map`` maps car number → driver_id.
+    """
+    import json
+    import urllib.request
+    import urllib.error
+
+    base = "https://api.openf1.org/v1"
+
+    # 1. Find the Race session_key for this event
+    event_lower = event_name.lower().replace(" grand prix", "")
+    try:
+        url = f"{base}/sessions?year={year}&session_name=Race"
+        with urllib.request.urlopen(url, timeout=15) as resp:
+            sessions = json.loads(resp.read())
+    except Exception as e:
+        logger.warning("OpenF1 sessions fetch failed: %s", e)
+        return None
+
+    race_key = None
+    for s in sessions:
+        loc = (s.get("location") or "").lower()
+        country = (s.get("country_name") or "").lower()
+        circuit = (s.get("circuit_short_name") or "").lower()
+        event_full = (s.get("session_name") or "").lower()
+        if event_lower in loc or event_lower in country or event_lower in circuit:
+            # Prefer main race (not sprint) — sprint has session_name "Sprint"
+            if event_full == "race":
+                race_key = s["session_key"]
+                break
+    if race_key is None:
+        logger.info("OpenF1: no Race session found for '%s' %d", event_name, year)
+        return None
+
+    # 2. Find qualifying session_key for grid positions
+    quali_key = None
+    try:
+        url = f"{base}/sessions?year={year}&session_name=Qualifying"
+        with urllib.request.urlopen(url, timeout=15) as resp:
+            q_sessions = json.loads(resp.read())
+        # Match the same event by meeting_key
+        race_meeting = next((s.get("meeting_key") for s in sessions if s["session_key"] == race_key), None)
+        for s in q_sessions:
+            if s.get("meeting_key") == race_meeting:
+                quali_key = s["session_key"]
+                break
+    except Exception as e:
+        logger.debug("OpenF1 qualifying sessions fetch failed: %s", e)
+
+    # 3. Fetch race position data (last entry per driver = final position)
+    try:
+        url = f"{base}/position?session_key={race_key}"
+        with urllib.request.urlopen(url, timeout=15) as resp:
+            pos_data = json.loads(resp.read())
+    except Exception as e:
+        logger.warning("OpenF1 position fetch failed: %s", e)
+        return None
+
+    final_positions: dict[int, int] = {}
+    for entry in pos_data:
+        final_positions[entry["driver_number"]] = entry["position"]
+
+    if not final_positions:
+        logger.info("OpenF1: no position data for session %s", race_key)
+        return None
+
+    # 4. Fetch qualifying positions for grid
+    quali_positions: dict[int, int] = {}
+    if quali_key:
+        try:
+            url = f"{base}/position?session_key={quali_key}"
+            with urllib.request.urlopen(url, timeout=15) as resp:
+                q_data = json.loads(resp.read())
+            for entry in q_data:
+                quali_positions[entry["driver_number"]] = entry["position"]
+        except Exception as e:
+            logger.debug("OpenF1 qualifying position fetch failed: %s", e)
+
+    n_drivers = len(final_positions)
+    parsed = []
+    for driver_num, race_pos in final_positions.items():
+        if driver_num not in driver_number_map:
+            continue
+
+        driver_id = driver_number_map[driver_num]
+        grid = quali_positions.get(driver_num, n_drivers)
+
+        # DNF heuristic: finished near last AND lost many positions from grid
+        is_dnf = race_pos >= (n_drivers - 2) and grid < (n_drivers - 7)
+
+        overtakes = max(0, grid - race_pos) if not is_dnf else 0
+
+        parsed.append({
+            "driver_id": driver_id,
+            "qualifying_position": grid,
+            "race_position": race_pos,
+            "dnf": is_dnf,
+            "fastest_lap": False,
+            "dotd": False,
+            "overtakes": overtakes,
+        })
+
+    if parsed:
+        logger.info("OpenF1: fetched %d results for '%s' %d (session %s)", len(parsed), event_name, year, race_key)
+    return parsed or None
+
+
+def fetch_race_results(year: int, event_name: str, db=None, driver_map: dict | None = None) -> list[dict] | None:
+    """Fetch race results and map to driver_ids.
+
+    Tries FastF1 first, then falls back to OpenF1 API.
+    Returns list of dicts matching RaceResult schema, or None if unavailable.
 
     Pass ``driver_map`` (code->id) when calling from a background thread
     so the function doesn't need a DB session (SQLite is not thread-safe).
     """
+    # Build driver code -> driver_id mapping from DB (only if not pre-supplied)
+    if driver_map is None:
+        driver_map = {}
+        if db:
+            from app.models import Driver
+            for driver in db.query(Driver).all():
+                driver_map[driver.code] = driver.id
+
+    # --- Try FastF1 first ---
+    parsed = _fetch_results_fastf1(year, event_name, driver_map)
+
+    # --- Fallback to OpenF1 API ---
+    if not parsed:
+        logger.info("FastF1 results unavailable, trying OpenF1 API for '%s' %d", event_name, year)
+        # Build driver_number -> driver_id map
+        driver_number_map: dict[int, int] = {}
+        if db:
+            from app.models import Driver
+            for driver in db.query(Driver).all():
+                driver_number_map[driver.number] = driver.id
+        parsed = _fetch_results_openf1(year, event_name, driver_number_map)
+
+    return parsed
+
+
+def _fetch_results_fastf1(year: int, event_name: str, driver_map: dict[str, int]) -> list[dict] | None:
+    """Fetch race results from FastF1/Ergast."""
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
-            # Try to resolve the event name with fallbacks
             resolved_name = _resolve_event_name(year, event_name)
             if resolved_name is None:
                 logger.warning("Could not resolve event for race results: '%s' %d", event_name, year)
@@ -456,16 +594,26 @@ def fetch_race_results(year: int, event_name: str, db=None, driver_map: dict | N
 
         results_df = session.results
         if results_df is None or results_df.empty:
-            logger.info("No race results available for %s %d", resolved_name, year)
+            logger.info("No race results available from FastF1 for %s %d", resolved_name, year)
             return None
 
-        # Build driver code -> driver_id mapping from DB (only if not pre-supplied)
-        if driver_map is None:
-            driver_map = {}
-            if db:
-                from app.models import Driver
-                for driver in db.query(Driver).all():
-                    driver_map[driver.code] = driver.id
+        # Check if data is actually populated (not all NaN)
+        has_valid_data = False
+        for _, row in results_df.iterrows():
+            pos = row.get("Position")
+            cp = row.get("ClassifiedPosition")
+            try:
+                if pos is not None and not np.isnan(float(pos)):
+                    has_valid_data = True
+                    break
+            except (ValueError, TypeError):
+                pass
+            if cp and str(cp).strip():
+                has_valid_data = True
+                break
+        if not has_valid_data:
+            logger.info("FastF1 results all NaN/empty for %s %d, skipping", resolved_name, year)
+            return None
 
         parsed = []
         for _, row in results_df.iterrows():
@@ -487,7 +635,6 @@ def fetch_race_results(year: int, event_name: str, db=None, driver_map: dict | N
                 grid = 22  # Pit lane start
 
             # Race position – try ClassifiedPosition first, fall back to Position
-            # FastF1 may return NaN for Position if classification is incomplete
             race_pos = 22
             for pos_col in ("ClassifiedPosition", "Position"):
                 try:
@@ -500,9 +647,6 @@ def fetch_race_results(year: int, event_name: str, db=None, driver_map: dict | N
                         break
                 except (ValueError, TypeError):
                     continue
-            if race_pos == 22:
-                logger.warning("No valid position for %s (Position=%r, ClassifiedPosition=%r)",
-                               code, row.get("Position"), row.get("ClassifiedPosition"))
 
             # DNF detection
             status = str(row.get("Status", ""))
@@ -523,7 +667,6 @@ def fetch_race_results(year: int, event_name: str, db=None, driver_map: dict | N
             except (ValueError, TypeError):
                 pass
 
-            # Estimate overtakes from position change
             overtakes = max(0, grid - race_pos) if not is_dnf else 0
 
             parsed.append({
@@ -537,16 +680,15 @@ def fetch_race_results(year: int, event_name: str, db=None, driver_map: dict | N
             })
 
         if not parsed:
-            logger.info("No valid driver results parsed for %s %d", resolved_name, year)
             return None
 
-        logger.info("Fetched %d driver results for %s %d", len(parsed), resolved_name, year)
+        logger.info("FastF1: fetched %d results for %s %d", len(parsed), resolved_name, year)
         return parsed
 
     except Exception as e:
         msg = str(e)
         if "not been loaded yet" in msg or "Failed to load" in msg or "No data" in msg.lower():
-            logger.info("Race results not yet available for %s %d", event_name, year)
+            logger.info("Race results not yet available from FastF1 for %s %d", event_name, year)
         else:
             logger.warning("FastF1 fetch failed for race results %s %d: %s", event_name, year, e)
         return None

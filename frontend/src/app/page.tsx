@@ -341,48 +341,35 @@ export default function TeamCalculator() {
       </AnimatePresence>
 
       {/* ========= 3-COLUMN LAYOUT ========= */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[minmax(0,1.2fr)_300px_minmax(0,1fr)] gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[minmax(320px,1.2fr)_300px_minmax(280px,1fr)] gap-4">
 
         {/* ===== LEFT: Best Teams ===== */}
-        <div className="rounded-2xl overflow-hidden glass-card order-2 xl:order-1">
-          <div className="px-4 pt-3 pb-2 flex items-center justify-between">
+        <div className="rounded-2xl glass-card order-2 xl:order-1 flex flex-col" style={{ maxHeight: "calc(100vh - 140px)" }}>
+          <div className="px-4 pt-3 pb-2 shrink-0">
             <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">Best Teams</h2>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <button onClick={() => setBestColMenu(!bestColMenu)} className="text-[10px] px-2 py-1 rounded-md hover:bg-white/5 text-gray-500 flex items-center gap-1" style={{ border: "1px solid var(--card-border)" }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18"/></svg>
-                  Columns
-                </button>
-                <ColumnMenu show={bestColMenu} cols={showBestCols} setCols={(c) => setShowBestCols(c as typeof showBestCols)} onClose={() => setBestColMenu(false)} />
-              </div>
-            </div>
           </div>
 
-          <div className="overflow-x-auto" style={{ maxHeight: "calc(100vh - 220px)" }}>
+          <div className="overflow-y-auto min-h-0 flex-1 px-2 pb-2">
             {bestTeams.length === 0 ? (
-              <div className="px-4 py-12 text-center">
+              <div className="py-12 text-center">
                 <div className="text-gray-600 text-xs">
                   {hasSimData ? "Click \"Find Best Teams\" to optimize" : "Run simulation first, then optimize"}
                 </div>
               </div>
             ) : (
-              <table className="w-full text-[10px] uppercase tracking-wider font-semibold text-gray-600">
-                <thead className="sticky top-0 z-10" style={{ background: "var(--card-bg)" }}>
-                  <tr style={{ borderBottom: "1px solid var(--card-border)" }}>
-                    <th className="px-3 py-2 text-left w-8">#</th>
-                    <th className="px-2 py-2 text-left">CR</th>
-                    <th className="px-2 py-2 text-left">x2</th>
-                    <th className="px-2 py-2 text-left">DR</th>
-                    {showBestCols.cost && <th className="px-2 py-2 text-right">$</th>}
-                    {showBestCols.xDelta && <th className="px-2 py-2 text-right">x&Delta;$</th>}
-                    {showBestCols.xPts && (
-                      <th className="px-2 py-2 text-right cursor-pointer" onClick={() => {}}>xPts &darr;</th>
-                    )}
-                    <th className="w-6"></th>
-                  </tr>
-                </thead>
-                <tbody className="text-xs normal-case tracking-normal font-normal">
-                  {bestTeams.map((team, idx) => {
+              <div className="space-y-2">
+                {(() => {
+                  // Ensure team colors are visible on dark backgrounds
+                  const safeColor = (hex: string) => {
+                    if (!hex || hex.length < 7) return "#9CA3AF";
+                    const r = parseInt(hex.slice(1, 3), 16);
+                    const g = parseInt(hex.slice(3, 5), 16);
+                    const b = parseInt(hex.slice(5, 7), 16);
+                    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                    return brightness < 40 ? "#9CA3AF" : hex;
+                  };
+
+                  return bestTeams.map((team, idx) => {
                     const drsDriver = team.drs_driver;
                     const otherDrivers = team.drivers.filter((d) => d.id !== drsDriver.id);
                     const teamXDelta = [...team.drivers, ...team.constructors].reduce((sum, a) => {
@@ -390,62 +377,82 @@ export default function TeamCalculator() {
                       return sum + (pred?.predicted_change ?? 0);
                     }, 0);
                     const isExpanded = expandedTeamIdx === idx;
+                    const isSelected = selectedTeamIdx === idx;
 
                     return (
-                      <tr
+                      <div
                         key={idx}
-                        className={`transition-colors cursor-pointer ${selectedTeamIdx === idx ? "bg-white/[0.04]" : "hover:bg-white/[0.02]"}`}
-                        style={{ borderBottom: "1px solid var(--card-border)" }}
+                        className={`rounded-xl p-3 transition-all cursor-pointer ${isSelected ? "ring-1 ring-emerald-500/30 bg-emerald-500/[0.04]" : "hover:bg-white/[0.03]"}`}
+                        style={{ background: isSelected ? undefined : "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
                         onClick={() => { setSelectedTeamIdx(idx); setExpandedTeamIdx(isExpanded ? null : idx); }}
                       >
-                        <td className="px-3 py-2 text-gray-500 font-mono">{idx + 1}</td>
-                        <td className="px-2 py-2">
-                          <div className="flex gap-1">
-                            {team.constructors.map((c) => (
-                              <span key={c.id} className="inline-flex flex-col items-center px-1.5 py-0.5 rounded text-[9px] font-bold leading-tight" style={{ background: `${c.color}20`, color: c.color, border: `1px solid ${c.color}30` }}>
-                                <span>{c.ref_id.slice(0, 3).toUpperCase()}</span>
-                                <span className="text-[8px] font-mono opacity-70">{c.expected_pts?.toFixed(1) ?? "—"}</span>
-                              </span>
-                            ))}
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono font-bold text-gray-500 bg-white/5 rounded px-1.5 py-0.5">#{idx + 1}</span>
+                            <span className="text-sm font-mono font-bold text-emerald-400">{team.total_points.toFixed(1)}<span className="text-[10px] text-emerald-400/60 ml-0.5">pts</span></span>
                           </div>
-                        </td>
-                        <td className="px-2 py-2">
-                          <span className="inline-flex flex-col items-center px-1.5 py-0.5 rounded text-[9px] font-bold leading-tight" style={{ background: `${drsDriver.constructor_color}25`, color: drsDriver.constructor_color, border: `1px solid ${drsDriver.constructor_color}40` }}>
-                            <span>{drsDriver.code}</span>
-                            <span className="text-[8px] font-mono opacity-70">{drsDriver.expected_pts != null ? ((drsDriver.expected_pts * 2).toFixed(1)) : "—"}</span>
-                          </span>
-                        </td>
-                        <td className="px-2 py-2">
-                          <div className="flex gap-1 flex-wrap">
-                            {otherDrivers.map((d) => (
-                              <span key={d.id} className="inline-flex flex-col items-center px-1.5 py-0.5 rounded text-[9px] font-bold leading-tight" style={{ background: `${d.constructor_color}15`, color: d.constructor_color, border: `1px solid ${d.constructor_color}25` }}>
-                                <span>{d.code}</span>
-                                <span className="text-[8px] font-mono opacity-70">{d.expected_pts?.toFixed(1) ?? "—"}</span>
+                          <div className="flex items-center gap-2 text-[10px] font-mono">
+                            <span className="text-gray-500">${team.total_cost.toFixed(1)}M</span>
+                            {teamXDelta !== 0 && (
+                              <span className={teamXDelta > 0 ? "text-emerald-400" : "text-red-400"}>
+                                {teamXDelta > 0 ? "+" : ""}{teamXDelta.toFixed(1)}
                               </span>
-                            ))}
+                            )}
                           </div>
-                        </td>
-                        {showBestCols.cost && (
-                          <td className="px-2 py-2 text-right font-mono text-gray-300">{team.total_cost.toFixed(1)}</td>
-                        )}
-                        {showBestCols.xDelta && (
-                          <td className="px-2 py-2 text-right font-mono">
-                            <span className={teamXDelta > 0 ? "text-emerald-400" : teamXDelta < 0 ? "text-red-400" : "text-gray-600"}>
-                              {teamXDelta > 0 ? "+" : ""}{teamXDelta.toFixed(2)}
-                            </span>
-                          </td>
-                        )}
-                        {showBestCols.xPts && (
-                          <td className="px-2 py-2 text-right font-mono font-semibold text-emerald-400">{team.total_points.toFixed(1)}</td>
-                        )}
-                        <td className="px-1 py-2 text-center text-gray-600">
-                          <span className="text-[8px]">{isExpanded ? "\u25B2" : "\u2026"}</span>
-                        </td>
-                      </tr>
+                        </div>
+
+                        {/* Constructors: 2-col grid — always fits */}
+                        <div className="grid grid-cols-2 gap-1.5 mb-2">
+                          {team.constructors.map((c) => {
+                            const cc = safeColor(c.color);
+                            return (
+                              <div key={c.id} className="flex items-center gap-1.5 rounded-lg px-2 py-1" style={{ background: `${cc}10`, borderLeft: `3px solid ${cc}` }}>
+                                <span className="text-[10px] font-bold" style={{ color: cc }}>{c.ref_id.slice(0, 3).toUpperCase()}</span>
+                                <span className="text-[9px] font-mono text-gray-400 ml-auto">{c.expected_pts?.toFixed(1) ?? "—"}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Drivers: row 1 = 3 drivers, row 2 = 2 drivers */}
+                        <div className="grid grid-cols-3 gap-1 mb-1">
+                          {(() => {
+                            const dc = safeColor(drsDriver.constructor_color);
+                            return (
+                              <div className="flex flex-col items-center rounded-lg py-1 relative" style={{ background: `${dc}12`, border: `1px solid ${dc}30` }}>
+                                <div className="absolute -top-1.5 -right-0.5 bg-yellow-500 text-black text-[6px] font-black px-1 rounded">DRS</div>
+                                <span className="text-[10px] font-bold" style={{ color: dc }}>{drsDriver.code}</span>
+                                <span className="text-[8px] font-mono text-gray-400">{drsDriver.expected_pts != null ? (drsDriver.expected_pts * 2).toFixed(1) : "—"}</span>
+                              </div>
+                            );
+                          })()}
+                          {otherDrivers.slice(0, 2).map((d) => {
+                            const dc = safeColor(d.constructor_color);
+                            return (
+                              <div key={d.id} className="flex flex-col items-center rounded-lg py-1" style={{ background: `${dc}08`, border: `1px solid ${dc}20` }}>
+                                <span className="text-[10px] font-bold" style={{ color: dc }}>{d.code}</span>
+                                <span className="text-[8px] font-mono text-gray-400">{d.expected_pts?.toFixed(1) ?? "—"}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="grid grid-cols-3 gap-1">
+                          {otherDrivers.slice(2).map((d) => {
+                            const dc = safeColor(d.constructor_color);
+                            return (
+                              <div key={d.id} className="flex flex-col items-center rounded-lg py-1" style={{ background: `${dc}08`, border: `1px solid ${dc}20` }}>
+                                <span className="text-[10px] font-bold" style={{ color: dc }}>{d.code}</span>
+                                <span className="text-[8px] font-mono text-gray-400">{d.expected_pts?.toFixed(1) ?? "—"}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     );
-                  })}
-                </tbody>
-              </table>
+                  });
+                })()}
+              </div>
             )}
           </div>
         </div>

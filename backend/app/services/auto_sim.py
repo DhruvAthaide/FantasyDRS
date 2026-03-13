@@ -40,6 +40,24 @@ DEFAULT_SIMULATIONS = 50000
 _sim_meta_cache: dict[int, dict] = {}
 
 
+def _compute_params_version() -> str:
+    """Compute a hash of DRIVER_DEFAULTS + CONSTRUCTOR parameters.
+    When parameters change, this hash changes, invalidating cached simulations."""
+    data = json.dumps({
+        "drivers": DRIVER_DEFAULTS,
+        "pitstops": CONSTRUCTOR_PITSTOP_DEFAULTS,
+        "car_pace": CONSTRUCTOR_CAR_PACE_STD,
+    }, sort_keys=True)
+    return hashlib.md5(data.encode()).hexdigest()[:12]
+
+
+# Current parameter version (computed once at import time)
+_PARAMS_VERSION = _compute_params_version()
+
+# Track which parameter version was used for each race's simulation
+_sim_params_version: dict[int, str] = {}
+
+
 # ---------------------------------------------------------------------------
 # Helpers (imported logic from simulation.py to avoid circular imports)
 # ---------------------------------------------------------------------------
@@ -186,12 +204,26 @@ def _compute_history_adjustments(
             "fl_pct": round(fl_pct, 4),
             "avg_pos_gained": round(avg_pos_gained, 2),
             "form_trend": round(form_trend, 2),
+            "total_races": s["total_races"],
         }
 
     logger.info(
         "History adjustments computed for %d drivers from %d prior races",
         len(adjustments), len(prior_races),
     )
+
+    # Sanity check: if nearly all drivers have the same qpace_mean, the data
+    # is likely corrupt (e.g., all positions were ingested as P22).
+    if len(adjustments) >= 10:
+        qpaces = [a["qpace_mean"] for a in adjustments.values()]
+        spread = max(qpaces) - min(qpaces)
+        if spread < 2.0:
+            logger.warning(
+                "History qpace spread is only %.1f — likely corrupt data "
+                "(min=%.1f, max=%.1f). Discarding history adjustments.",
+                spread, min(qpaces), max(qpaces),
+            )
+            return {}
 
     return adjustments
 
@@ -246,13 +278,38 @@ def _build_driver_params(
             ))
         elif history_adjustments and d.id in history_adjustments:
             hist = history_adjustments[d.id]
-            logger.debug("Using history adjustments for %s (form_trend: %+.2f)", d.code, hist.get("form_trend", 0))
+            defaults = DRIVER_DEFAULTS.get(d.code, {
+                "qpace_mean": 12.0, "qpace_std": 2.5,
+                "dnf_pct": 0.06, "fl_pct": 0.02, "avg_pos_gained": 0.1,
+            })
+
+            # Blend history with static defaults — history should refine, not replace.
+            # More prior races = more weight to history; few races = lean on defaults.
+            n_races = hist.get("total_races", 0) if isinstance(hist, dict) else 0
+            # Weight ramps from 0.3 (1 race) to 0.8 (5+ races)
+            hist_weight = min(0.8, 0.2 + n_races * 0.12)
+            def_weight = 1.0 - hist_weight
+
+            blended_qpace = defaults["qpace_mean"] * def_weight + hist["qpace_mean"] * hist_weight
+            # Clamp to avoid nonsensical values from bad data
+            blended_qpace = max(1.0, min(20.0, blended_qpace))
+
+            blended_std = defaults["qpace_std"] * def_weight + hist["qpace_std"] * hist_weight
+            blended_dnf = defaults["dnf_pct"] * def_weight + hist["dnf_pct"] * hist_weight
+            blended_fl = defaults["fl_pct"] * def_weight + hist["fl_pct"] * hist_weight
+            blended_pg = defaults["avg_pos_gained"] * def_weight + hist["avg_pos_gained"] * hist_weight
+
+            logger.debug(
+                "Blended history+defaults for %s: qpace=%.2f (hist=%.2f def=%.2f w=%.0f%%) form=%+.2f",
+                d.code, blended_qpace, hist["qpace_mean"], defaults["qpace_mean"],
+                hist_weight * 100, hist.get("form_trend", 0),
+            )
             params.append(DriverParams(
                 id=d.id, code=d.code,
                 constructor_ref=constructor.ref_id if constructor else "",
-                qpace_mean=hist["qpace_mean"], qpace_std=hist["qpace_std"],
-                dnf_probability=hist["dnf_pct"], fl_probability=hist["fl_pct"],
-                avg_positions_gained=hist["avg_pos_gained"], grid_penalty=penalty,
+                qpace_mean=blended_qpace, qpace_std=blended_std,
+                dnf_probability=blended_dnf, fl_probability=blended_fl,
+                avg_positions_gained=blended_pg, grid_penalty=penalty,
             ))
         else:
             defaults = DRIVER_DEFAULTS.get(d.code, {
@@ -332,7 +389,9 @@ def get_next_race_from_db(db: Session) -> Race | None:
 
 
 def _is_stale(db: Session, race_id: int) -> bool:
-    """Check if existing simulation results are stale."""
+    """Check if existing simulation results are stale.
+    Returns True if results are older than STALENESS_HOURS or if the
+    simulation parameters have changed since the last run."""
     latest = (
         db.query(SimulationResult)
         .filter_by(race_id=race_id)
@@ -340,6 +399,15 @@ def _is_stale(db: Session, race_id: int) -> bool:
         .first()
     )
     if not latest or not latest.simulated_at:
+        return True
+
+    # Check if parameters have changed since last simulation
+    cached_version = _sim_params_version.get(race_id)
+    if cached_version != _PARAMS_VERSION:
+        logger.info(
+            "Parameters changed for race %d (cached=%s, current=%s) — marking stale",
+            race_id, cached_version, _PARAMS_VERSION,
+        )
         return True
 
     age = datetime.utcnow() - latest.simulated_at
@@ -504,6 +572,9 @@ async def run_auto_simulation(
         raise
 
     logger.info("Simulated %s (%d iterations, sources: %s)", race.name, n_simulations, data_sources_summary)
+
+    # Record which parameter version was used for this simulation
+    _sim_params_version[race_id] = _PARAMS_VERSION
 
     meta = {
         "data_sources": data_sources_summary,

@@ -34,7 +34,7 @@
     {"id": "haas", "name": "Haas", "price": 7.4, "drivers": ["BEA", "OCO"], "color": "#B6BABD"},
     {"id": "audi", "name": "Audi", "price": 6.6, "drivers": ["HUL", "BOR"], "color": "#00E701"},
     {"id": "rb", "name": "Racing Bulls", "price": 6.3, "drivers": ["LAW", "LIN"], "color": "#6692FF"},
-    {"id": "cadillac", "name": "Cadillac", "price": 6.0, "drivers": ["PER", "BOT"], "color": "#1B1B1B"}
+    {"id": "cadillac", "name": "Cadillac", "price": 6.0, "drivers": ["PER", "BOT"], "color": "#8C8C8C"}
   ],
   "calendar": [
     {"round": 1, "name": "Australian Grand Prix", "circuit": "Albert Park", "country": "Australia", "date": "2026-03-08", "sprint": false, "overtake_difficulty": 0.4, "high_speed": 0.55, "street_circuit": true, "altitude": 5, "avg_degradation": 0.5, "laps": 58, "drs_zones": 4},
