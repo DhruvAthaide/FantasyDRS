@@ -1,0 +1,184 @@
+{
+  "CONSTRUCTOR_CAR_PACE_STD": {
+    "alpine": 1.8,
+    "aston_martin": 2.0,
+    "audi": 2.2,
+    "cadillac": 2.5,
+    "ferrari": 0.9,
+    "haas": 2.2,
+    "mclaren": 1.0,
+    "mercedes": 0.8,
+    "rb": 2.0,
+    "red_bull": 1.0,
+    "williams": 1.8
+  },
+  "CONSTRUCTOR_PITSTOP_DEFAULTS": {
+    "alpine": 4.5,
+    "aston_martin": 4.5,
+    "audi": 4.0,
+    "cadillac": 3.5,
+    "ferrari": 5.5,
+    "haas": 4.0,
+    "mclaren": 6.5,
+    "mercedes": 7.0,
+    "rb": 5.0,
+    "red_bull": 7.0,
+    "williams": 5.0
+  },
+  "DRIVER_DEFAULTS": {
+    "ALB": {
+      "avg_pos_gained": 0.2,
+      "dnf_pct": 0.05,
+      "fl_pct": 0.02,
+      "qpace_mean": 9.5,
+      "qpace_std": 2.5
+    },
+    "ALO": {
+      "avg_pos_gained": 0.4,
+      "dnf_pct": 0.05,
+      "fl_pct": 0.02,
+      "qpace_mean": 11.0,
+      "qpace_std": 2.8
+    },
+    "ANT": {
+      "avg_pos_gained": 0.3,
+      "dnf_pct": 0.07,
+      "fl_pct": 0.08,
+      "qpace_mean": 4.5,
+      "qpace_std": 2.2
+    },
+    "BEA": {
+      "avg_pos_gained": 0.1,
+      "dnf_pct": 0.07,
+      "fl_pct": 0.02,
+      "qpace_mean": 11.5,
+      "qpace_std": 3.0
+    },
+    "BOR": {
+      "avg_pos_gained": 0.0,
+      "dnf_pct": 0.08,
+      "fl_pct": 0.01,
+      "qpace_mean": 14.0,
+      "qpace_std": 3.0
+    },
+    "BOT": {
+      "avg_pos_gained": 0.0,
+      "dnf_pct": 0.06,
+      "fl_pct": 0.01,
+      "qpace_mean": 14.0,
+      "qpace_std": 3.0
+    },
+    "COL": {
+      "avg_pos_gained": 0.0,
+      "dnf_pct": 0.07,
+      "fl_pct": 0.01,
+      "qpace_mean": 13.5,
+      "qpace_std": 3.0
+    },
+    "GAS": {
+      "avg_pos_gained": 0.2,
+      "dnf_pct": 0.06,
+      "fl_pct": 0.03,
+      "qpace_mean": 9.0,
+      "qpace_std": 2.5
+    },
+    "HAD": {
+      "avg_pos_gained": 0.1,
+      "dnf_pct": 0.08,
+      "fl_pct": 0.03,
+      "qpace_mean": 8.0,
+      "qpace_std": 2.5
+    },
+    "HAM": {
+      "avg_pos_gained": 0.6,
+      "dnf_pct": 0.04,
+      "fl_pct": 0.1,
+      "qpace_mean": 4.0,
+      "qpace_std": 1.9
+    },
+    "HUL": {
+      "avg_pos_gained": 0.1,
+      "dnf_pct": 0.06,
+      "fl_pct": 0.01,
+      "qpace_mean": 12.0,
+      "qpace_std": 2.8
+    },
+    "LAW": {
+      "avg_pos_gained": 0.2,
+      "dnf_pct": 0.06,
+      "fl_pct": 0.02,
+      "qpace_mean": 10.5,
+      "qpace_std": 2.8
+    },
+    "LEC": {
+      "avg_pos_gained": 0.4,
+      "dnf_pct": 0.05,
+      "fl_pct": 0.11,
+      "qpace_mean": 3.5,
+      "qpace_std": 1.8
+    },
+    "LIN": {
+      "avg_pos_gained": -0.1,
+      "dnf_pct": 0.08,
+      "fl_pct": 0.01,
+      "qpace_mean": 14.5,
+      "qpace_std": 3.0
+    },
+    "NOR": {
+      "avg_pos_gained": 0.3,
+      "dnf_pct": 0.04,
+      "fl_pct": 0.09,
+      "qpace_mean": 4.0,
+      "qpace_std": 2.0
+    },
+    "OCO": {
+      "avg_pos_gained": 0.1,
+      "dnf_pct": 0.06,
+      "fl_pct": 0.01,
+      "qpace_mean": 12.0,
+      "qpace_std": 2.8
+    },
+    "PER": {
+      "avg_pos_gained": 0.1,
+      "dnf_pct": 0.07,
+      "fl_pct": 0.01,
+      "qpace_mean": 13.0,
+      "qpace_std": 3.0
+    },
+    "PIA": {
+      "avg_pos_gained": 0.2,
+      "dnf_pct": 0.05,
+      "fl_pct": 0.08,
+      "qpace_mean": 4.5,
+      "qpace_std": 2.0
+    },
+    "RUS": {
+      "avg_pos_gained": 0.5,
+      "dnf_pct": 0.04,
+      "fl_pct": 0.12,
+      "qpace_mean": 3.0,
+      "qpace_std": 1.8
+    },
+    "SAI": {
+      "avg_pos_gained": 0.3,
+      "dnf_pct": 0.05,
+      "fl_pct": 0.03,
+      "qpace_mean": 8.5,
+      "qpace_std": 2.5
+    },
+    "STR": {
+      "avg_pos_gained": 0.0,
+      "dnf_pct": 0.06,
+      "fl_pct": 0.01,
+      "qpace_mean": 13.0,
+      "qpace_std": 2.8
+    },
+    "VER": {
+      "avg_pos_gained": 0.8,
+      "dnf_pct": 0.03,
+      "fl_pct": 0.13,
+      "qpace_mean": 3.5,
+      "qpace_std": 2.2
+    }
+  }
+}

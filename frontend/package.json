@@ -10,7 +10,10 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx src/db/seed.ts",
-    "db:import-results": "tsx src/db/import-race-results.ts"
+    "db:import-results": "tsx src/db/import-race-results.ts",
+    "test": "vitest run",
+    "test:golden": "vitest run --dir src/lib/simulation/__tests__",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
@@ -32,6 +35,7 @@
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.4"
   }
 }
