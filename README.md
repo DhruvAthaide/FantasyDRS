@@ -89,6 +89,47 @@ Notes:
   records `source: "none"` with a retry note. Re-run the script later; the import
   step is idempotent.
 
+### Per-weekend refresh checklist
+
+After each race weekend, before deploying updated data:
+
+1. Wait for the race to complete and results to publish (usually Sunday + 2–3 hours).
+2. Activate the Python backend venv: `cd backend && source venv/Scripts/activate`.
+3. Refresh the completed round:
+
+   ```bash
+   python scripts/refresh_race_data.py --year 2026 --round <N> --verbose
+   ```
+
+4. Open `frontend/data/f1/2026/<NN>-<slug>/_meta.json` and confirm `source` is
+   either `"fastf1"` or `"openf1-fallback"` (NOT `"none"`). If `"none"`, wait a
+   few hours and re-run — upstream data is still propagating.
+5. Commit the refreshed artifacts:
+
+   ```bash
+   cd .. && git add frontend/data/f1 && git commit -m "data(f1): refresh 2026 round <N>"
+   ```
+
+6. Import into Neon:
+
+   ```bash
+   cd frontend && npm run db:import-results
+   ```
+
+7. Push to deploy:
+
+   ```bash
+   git push
+   ```
+
+   Vercel picks up the push and redeploys automatically.
+
+**Feature flag reminder:** `FEATURE_TELEMETRY_LIVE` stays `false` for v1.0 — the
+12 `/api/telemetry/*` methods short-circuit to empty responses and the
+driver-analysis page renders a placeholder. Only flip this flag (via
+`NEXT_PUBLIC_FEATURE_TELEMETRY_LIVE=true`) when a long-running backend capable
+of live FastF1 session loads is wired in (post-v1.0).
+
 ## PAUL Framework
 
 This project uses the [PAUL framework](https://github.com/paul-framework/paul)
