@@ -1,0 +1,376 @@
+{
+  "round": 1,
+  "sessions": {
+    "FP1": {
+      "ALB": {
+        "best_lap_ms": 83130,
+        "run_count": 1
+      },
+      "ANT": {
+        "best_lap_ms": 81376,
+        "run_count": 1
+      },
+      "BEA": {
+        "best_lap_ms": 82682,
+        "run_count": 1
+      },
+      "BOR": {
+        "best_lap_ms": 81696,
+        "run_count": 1
+      },
+      "BOT": {
+        "best_lap_ms": 84022,
+        "run_count": 1
+      },
+      "COL": {
+        "best_lap_ms": 83325,
+        "run_count": 1
+      },
+      "GAS": {
+        "best_lap_ms": 84035,
+        "run_count": 1
+      },
+      "HAD": {
+        "best_lap_ms": 81087,
+        "run_count": 1
+      },
+      "HAM": {
+        "best_lap_ms": 80736,
+        "run_count": 1
+      },
+      "HUL": {
+        "best_lap_ms": 81969,
+        "run_count": 1
+      },
+      "LAW": {
+        "best_lap_ms": 82613,
+        "run_count": 1
+      },
+      "LEC": {
+        "best_lap_ms": 80267,
+        "run_count": 1
+      },
+      "LIN": {
+        "best_lap_ms": 81313,
+        "run_count": 1
+      },
+      "NOR": {
+        "best_lap_ms": 84391,
+        "run_count": 1
+      },
+      "OCO": {
+        "best_lap_ms": 82161,
+        "run_count": 1
+      },
+      "PER": {
+        "best_lap_ms": 84620,
+        "run_count": 1
+      },
+      "PIA": {
+        "best_lap_ms": 81342,
+        "run_count": 1
+      },
+      "RUS": {
+        "best_lap_ms": 81371,
+        "run_count": 1
+      },
+      "SAI": {
+        "best_lap_ms": 82323,
+        "run_count": 1
+      },
+      "STR": {
+        "best_lap_ms": 110334,
+        "run_count": 1
+      },
+      "VER": {
+        "best_lap_ms": 80789,
+        "run_count": 1
+      }
+    },
+    "FP2": {
+      "ALB": {
+        "best_lap_ms": 81847,
+        "long_run_avg_ms": 84173,
+        "long_run_samples": 6,
+        "run_count": 1
+      },
+      "ALO": {
+        "best_lap_ms": 84662,
+        "run_count": 1
+      },
+      "ANT": {
+        "best_lap_ms": 79943,
+        "long_run_avg_ms": 82677,
+        "long_run_samples": 5,
+        "run_count": 1
+      },
+      "BEA": {
+        "best_lap_ms": 81326,
+        "long_run_avg_ms": 83246,
+        "long_run_samples": 4,
+        "run_count": 1
+      },
+      "BOR": {
+        "best_lap_ms": 81668,
+        "run_count": 1
+      },
+      "BOT": {
+        "best_lap_ms": 83660,
+        "long_run_avg_ms": 86470,
+        "long_run_samples": 4,
+        "run_count": 1
+      },
+      "COL": {
+        "best_lap_ms": 82619,
+        "long_run_avg_ms": 84987,
+        "long_run_samples": 11,
+        "run_count": 1
+      },
+      "GAS": {
+        "best_lap_ms": 82167,
+        "long_run_avg_ms": 83502,
+        "long_run_samples": 4,
+        "run_count": 1
+      },
+      "HAD": {
+        "best_lap_ms": 80941,
+        "long_run_avg_ms": 83442,
+        "long_run_samples": 8,
+        "run_count": 1
+      },
+      "HAM": {
+        "best_lap_ms": 80050,
+        "long_run_avg_ms": 81544,
+        "long_run_samples": 6,
+        "run_count": 1
+      },
+      "HUL": {
+        "best_lap_ms": 81351,
+        "long_run_avg_ms": 83991,
+        "long_run_samples": 10,
+        "run_count": 1
+      },
+      "LAW": {
+        "best_lap_ms": 81358,
+        "long_run_avg_ms": 82930,
+        "long_run_samples": 5,
+        "run_count": 1
+      },
+      "LEC": {
+        "best_lap_ms": 80291,
+        "long_run_avg_ms": 82386,
+        "long_run_samples": 4,
+        "run_count": 1
+      },
+      "LIN": {
+        "best_lap_ms": 80922,
+        "run_count": 1
+      },
+      "NOR": {
+        "best_lap_ms": 80794,
+        "long_run_avg_ms": 82978,
+        "long_run_samples": 8,
+        "run_count": 1
+      },
+      "OCO": {
+        "best_lap_ms": 81179,
+        "long_run_avg_ms": 84015,
+        "long_run_samples": 5,
+        "run_count": 1
+      },
+      "PER": {
+        "best_lap_ms": 118806,
+        "run_count": 1
+      },
+      "PIA": {
+        "best_lap_ms": 79729,
+        "long_run_avg_ms": 81059,
+        "long_run_samples": 4,
+        "run_count": 1
+      },
+      "RUS": {
+        "best_lap_ms": 80049,
+        "long_run_avg_ms": 82999,
+        "long_run_samples": 10,
+        "run_count": 1
+      },
+      "SAI": {
+        "best_lap_ms": 82253,
+        "run_count": 1
+      },
+      "STR": {
+        "best_lap_ms": 85816,
+        "run_count": 1
+      },
+      "VER": {
+        "best_lap_ms": 80366,
+        "run_count": 1
+      }
+    },
+    "FP3": {
+      "ALB": {
+        "best_lap_ms": 81664,
+        "run_count": 1
+      },
+      "ALO": {
+        "best_lap_ms": 82720,
+        "run_count": 1
+      },
+      "ANT": {
+        "best_lap_ms": 80324,
+        "run_count": 1
+      },
+      "BEA": {
+        "best_lap_ms": 80778,
+        "run_count": 1
+      },
+      "BOR": {
+        "best_lap_ms": 80459,
+        "run_count": 1
+      },
+      "BOT": {
+        "best_lap_ms": 83514,
+        "run_count": 1
+      },
+      "COL": {
+        "best_lap_ms": 81413,
+        "run_count": 1
+      },
+      "GAS": {
+        "best_lap_ms": 81071,
+        "run_count": 1
+      },
+      "HAD": {
+        "best_lap_ms": 80137,
+        "run_count": 1
+      },
+      "HAM": {
+        "best_lap_ms": 79669,
+        "run_count": 1
+      },
+      "HUL": {
+        "best_lap_ms": 81067,
+        "run_count": 1
+      },
+      "LAW": {
+        "best_lap_ms": 80890,
+        "run_count": 1
+      },
+      "LEC": {
+        "best_lap_ms": 79827,
+        "run_count": 1
+      },
+      "LIN": {
+        "best_lap_ms": 80838,
+        "run_count": 1
+      },
+      "NOR": {
+        "best_lap_ms": 80443,
+        "run_count": 1
+      },
+      "OCO": {
+        "best_lap_ms": 80983,
+        "run_count": 1
+      },
+      "PER": {
+        "best_lap_ms": 84397,
+        "run_count": 1
+      },
+      "PIA": {
+        "best_lap_ms": 80087,
+        "run_count": 1
+      },
+      "RUS": {
+        "best_lap_ms": 79053,
+        "run_count": 1
+      },
+      "VER": {
+        "best_lap_ms": 80197,
+        "run_count": 1
+      }
+    },
+    "Q": {
+      "ALB": {
+        "best_lap_ms": 80941,
+        "run_count": 1
+      },
+      "ALO": {
+        "best_lap_ms": 81969,
+        "run_count": 1
+      },
+      "ANT": {
+        "best_lap_ms": 78811,
+        "run_count": 1
+      },
+      "BEA": {
+        "best_lap_ms": 80311,
+        "run_count": 1
+      },
+      "BOR": {
+        "best_lap_ms": 80221,
+        "run_count": 1
+      },
+      "BOT": {
+        "best_lap_ms": 83244,
+        "run_count": 1
+      },
+      "COL": {
+        "best_lap_ms": 81200,
+        "run_count": 1
+      },
+      "GAS": {
+        "best_lap_ms": 80501,
+        "run_count": 1
+      },
+      "HAD": {
+        "best_lap_ms": 79303,
+        "run_count": 1
+      },
+      "HAM": {
+        "best_lap_ms": 79478,
+        "run_count": 1
+      },
+      "HUL": {
+        "best_lap_ms": 80303,
+        "run_count": 1
+      },
+      "LAW": {
+        "best_lap_ms": 79994,
+        "run_count": 1
+      },
+      "LEC": {
+        "best_lap_ms": 79327,
+        "run_count": 1
+      },
+      "LIN": {
+        "best_lap_ms": 79971,
+        "run_count": 1
+      },
+      "NOR": {
+        "best_lap_ms": 79475,
+        "run_count": 1
+      },
+      "OCO": {
+        "best_lap_ms": 80491,
+        "run_count": 1
+      },
+      "PER": {
+        "best_lap_ms": 82605,
+        "run_count": 1
+      },
+      "PIA": {
+        "best_lap_ms": 79380,
+        "run_count": 1
+      },
+      "RUS": {
+        "best_lap_ms": 78518,
+        "run_count": 1
+      },
+      "VER": {
+        "best_lap_ms": 102025,
+        "run_count": 1
+      }
+    }
+  },
+  "year": 2026
+}

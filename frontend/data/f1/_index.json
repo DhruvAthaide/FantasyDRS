@@ -1,0 +1,22 @@
+{
+  "rounds": [
+    {
+      "event_name": "Australian Grand Prix",
+      "fetched_at": "2026-04-12T12:32:59.216269+00:00",
+      "folder": "01-australian-grand-prix",
+      "notes": "fetch failed \u2014 retry later (results unavailable)",
+      "round": 1,
+      "source": "none",
+      "year": 2026
+    },
+    {
+      "event_name": "Abu Dhabi Grand Prix",
+      "fetched_at": "2026-04-12T12:31:51.094051+00:00",
+      "folder": "24-abu-dhabi-grand-prix",
+      "notes": "future race, no data available",
+      "round": 24,
+      "source": "none",
+      "year": 2026
+    }
+  ]
+}

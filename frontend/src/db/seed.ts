@@ -16,7 +16,11 @@
  * Scope: initial fantasy_prices / fantasy_scores population is intentionally
  * out of scope for plan 01-01. This script seeds reference data only.
  */
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+// Load .env.local first (gitignored local creds), then .env as fallback.
+loadEnv({ path: ".env.local" });
+loadEnv({ path: ".env" });
+
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { eq, sql } from "drizzle-orm";

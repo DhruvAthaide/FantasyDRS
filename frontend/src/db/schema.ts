@@ -140,17 +140,28 @@ export const powerUnitAllocations = pgTable("power_unit_allocations", {
 // ---------------------------------------------------------------------------
 // race_results
 // ---------------------------------------------------------------------------
-export const raceResults = pgTable("race_results", {
-  id: serial("id").primaryKey(),
-  raceId: integer("race_id").references(() => races.id),
-  driverId: integer("driver_id").references(() => drivers.id),
-  qualifyingPosition: integer("qualifying_position"),
-  racePosition: integer("race_position"),
-  dnf: boolean("dnf").default(false),
-  fastestLap: boolean("fastest_lap").default(false),
-  dotd: boolean("dotd").default(false),
-  overtakes: integer("overtakes").default(0),
-});
+export const raceResults = pgTable(
+  "race_results",
+  {
+    id: serial("id").primaryKey(),
+    raceId: integer("race_id").references(() => races.id),
+    driverId: integer("driver_id").references(() => drivers.id),
+    qualifyingPosition: integer("qualifying_position"),
+    racePosition: integer("race_position"),
+    dnf: boolean("dnf").default(false),
+    fastestLap: boolean("fastest_lap").default(false),
+    dotd: boolean("dotd").default(false),
+    overtakes: integer("overtakes").default(0),
+  },
+  (table) => ({
+    // Composite unique — enables idempotent upserts from the F1 data importer
+    // (one result per driver per race).
+    raceDriverUnique: uniqueIndex("race_results_race_driver_unique").on(
+      table.raceId,
+      table.driverId
+    ),
+  })
+);
 
 // ---------------------------------------------------------------------------
 // simulation_results

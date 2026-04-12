@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "race_results_race_driver_unique" ON "race_results" USING btree ("race_id","driver_id");

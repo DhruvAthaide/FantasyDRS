@@ -11,6 +11,7 @@ import {
   Legend,
 } from "recharts";
 import { api } from "@/lib/api";
+import { FEATURE_TELEMETRY_LIVE } from "@/lib/flags";
 import type {
   Race,
   Driver,
@@ -116,6 +117,33 @@ const TABS = ["Overview", "Driver Graphs", "Compare"] as const;
 type Tab = (typeof TABS)[number];
 
 // ── Main component ──────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════
+// Placeholder rendered when FEATURE_TELEMETRY_LIVE is off (v1.0 default).
+// See .paul/phases/02-f1-data-strategy/02-01-RESEARCH.md §3 for context.
+// ════════════════════════════════════════════════════════════════════
+function TelemetryDisabledBanner() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8 text-center"
+    >
+      <div className="mx-auto max-w-md space-y-3">
+        <h2 className="text-lg font-bold text-white">Live telemetry unavailable</h2>
+        <p className="text-sm text-gray-400 leading-relaxed">
+          This deployment of FantasyDRS does not include live telemetry. The feature
+          requires continuous session access that isn&apos;t available on Vercel&apos;s
+          serverless runtime.
+        </p>
+        <p className="text-xs text-gray-500">
+          Planned for a post-v1.0 release. Until then, check the Overview tab for
+          simulation-driven driver comparisons.
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function DriverAnalysisPage() {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
   const [races, setRaces] = useState<Race[]>([]);
@@ -207,23 +235,31 @@ export default function DriverAnalysisPage() {
       )}
 
       {activeTab === "Driver Graphs" && (
-        <GraphsTab
-          drivers={drivers}
-          driversByConstructor={driversByConstructor}
-          raceYear={raceYear}
-          raceEvent={raceEvent}
-          sessionType={sessionType}
-        />
+        FEATURE_TELEMETRY_LIVE ? (
+          <GraphsTab
+            drivers={drivers}
+            driversByConstructor={driversByConstructor}
+            raceYear={raceYear}
+            raceEvent={raceEvent}
+            sessionType={sessionType}
+          />
+        ) : (
+          <TelemetryDisabledBanner />
+        )
       )}
 
       {activeTab === "Compare" && (
-        <CompareTab
-          drivers={drivers}
-          driversByConstructor={driversByConstructor}
-          raceYear={raceYear}
-          raceEvent={raceEvent}
-          sessionType={sessionType}
-        />
+        FEATURE_TELEMETRY_LIVE ? (
+          <CompareTab
+            drivers={drivers}
+            driversByConstructor={driversByConstructor}
+            raceYear={raceYear}
+            raceEvent={raceEvent}
+            sessionType={sessionType}
+          />
+        ) : (
+          <TelemetryDisabledBanner />
+        )
       )}
     </div>
   );
