@@ -1,0 +1,2671 @@
+{
+  "scenarios": {
+    "baseline_dry_race": {
+      "inputs": {
+        "circuit": null,
+        "constructors": [
+          {
+            "car_pace_std": 0.8,
+            "driver_ids": [
+              2,
+              5
+            ],
+            "expected_pitstop_pts": 7.0,
+            "id": 1,
+            "ref_id": "mercedes"
+          },
+          {
+            "car_pace_std": 1.0,
+            "driver_ids": [
+              3,
+              4
+            ],
+            "expected_pitstop_pts": 6.5,
+            "id": 2,
+            "ref_id": "mclaren"
+          },
+          {
+            "car_pace_std": 1.0,
+            "driver_ids": [
+              1,
+              8
+            ],
+            "expected_pitstop_pts": 7.0,
+            "id": 3,
+            "ref_id": "red_bull"
+          },
+          {
+            "car_pace_std": 0.9,
+            "driver_ids": [
+              6,
+              7
+            ],
+            "expected_pitstop_pts": 5.5,
+            "id": 4,
+            "ref_id": "ferrari"
+          },
+          {
+            "car_pace_std": 1.8,
+            "driver_ids": [
+              9,
+              19
+            ],
+            "expected_pitstop_pts": 4.5,
+            "id": 5,
+            "ref_id": "alpine"
+          },
+          {
+            "car_pace_std": 1.8,
+            "driver_ids": [
+              10,
+              11
+            ],
+            "expected_pitstop_pts": 5.0,
+            "id": 6,
+            "ref_id": "williams"
+          },
+          {
+            "car_pace_std": 2.0,
+            "driver_ids": [
+              12,
+              13
+            ],
+            "expected_pitstop_pts": 4.5,
+            "id": 7,
+            "ref_id": "aston_martin"
+          },
+          {
+            "car_pace_std": 2.2,
+            "driver_ids": [
+              14,
+              15
+            ],
+            "expected_pitstop_pts": 4.0,
+            "id": 8,
+            "ref_id": "haas"
+          },
+          {
+            "car_pace_std": 2.2,
+            "driver_ids": [
+              17,
+              18
+            ],
+            "expected_pitstop_pts": 4.0,
+            "id": 9,
+            "ref_id": "audi"
+          },
+          {
+            "car_pace_std": 2.0,
+            "driver_ids": [
+              16,
+              20
+            ],
+            "expected_pitstop_pts": 5.0,
+            "id": 10,
+            "ref_id": "rb"
+          },
+          {
+            "car_pace_std": 2.5,
+            "driver_ids": [
+              21,
+              22
+            ],
+            "expected_pitstop_pts": 3.5,
+            "id": 11,
+            "ref_id": "cadillac"
+          }
+        ],
+        "drivers": [
+          {
+            "avg_positions_gained": 0.8,
+            "code": "VER",
+            "constructor_ref": "red_bull",
+            "dnf_probability": 0.03,
+            "fl_probability": 0.13,
+            "grid_penalty": 0,
+            "id": 1,
+            "qpace_mean": 3.5,
+            "qpace_std": 2.2
+          },
+          {
+            "avg_positions_gained": 0.5,
+            "code": "RUS",
+            "constructor_ref": "mercedes",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.12,
+            "grid_penalty": 0,
+            "id": 2,
+            "qpace_mean": 3.0,
+            "qpace_std": 1.8
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "NOR",
+            "constructor_ref": "mclaren",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.09,
+            "grid_penalty": 0,
+            "id": 3,
+            "qpace_mean": 4.0,
+            "qpace_std": 2.0
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "PIA",
+            "constructor_ref": "mclaren",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.08,
+            "grid_penalty": 0,
+            "id": 4,
+            "qpace_mean": 4.5,
+            "qpace_std": 2.0
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "ANT",
+            "constructor_ref": "mercedes",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.08,
+            "grid_penalty": 0,
+            "id": 5,
+            "qpace_mean": 4.5,
+            "qpace_std": 2.2
+          },
+          {
+            "avg_positions_gained": 0.4,
+            "code": "LEC",
+            "constructor_ref": "ferrari",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.11,
+            "grid_penalty": 0,
+            "id": 6,
+            "qpace_mean": 3.5,
+            "qpace_std": 1.8
+          },
+          {
+            "avg_positions_gained": 0.6,
+            "code": "HAM",
+            "constructor_ref": "ferrari",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.1,
+            "grid_penalty": 0,
+            "id": 7,
+            "qpace_mean": 4.0,
+            "qpace_std": 1.9
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "HAD",
+            "constructor_ref": "red_bull",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 8,
+            "qpace_mean": 8.0,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "GAS",
+            "constructor_ref": "alpine",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 9,
+            "qpace_mean": 9.0,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "SAI",
+            "constructor_ref": "williams",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 10,
+            "qpace_mean": 8.5,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "ALB",
+            "constructor_ref": "williams",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 11,
+            "qpace_mean": 9.5,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.4,
+            "code": "ALO",
+            "constructor_ref": "aston_martin",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 12,
+            "qpace_mean": 11.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "STR",
+            "constructor_ref": "aston_martin",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 13,
+            "qpace_mean": 13.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "BEA",
+            "constructor_ref": "haas",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 14,
+            "qpace_mean": 11.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "OCO",
+            "constructor_ref": "haas",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 15,
+            "qpace_mean": 12.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "LAW",
+            "constructor_ref": "rb",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 16,
+            "qpace_mean": 10.5,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "HUL",
+            "constructor_ref": "audi",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 17,
+            "qpace_mean": 12.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "BOR",
+            "constructor_ref": "audi",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 18,
+            "qpace_mean": 14.0,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "COL",
+            "constructor_ref": "alpine",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 19,
+            "qpace_mean": 13.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": -0.1,
+            "code": "LIN",
+            "constructor_ref": "rb",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 20,
+            "qpace_mean": 14.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "PER",
+            "constructor_ref": "cadillac",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 21,
+            "qpace_mean": 13.0,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "BOT",
+            "constructor_ref": "cadillac",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 22,
+            "qpace_mean": 14.0,
+            "qpace_std": 3.0
+          }
+        ],
+        "is_sprint": false,
+        "n_simulations": 10000,
+        "seed": 42,
+        "weather": null
+      },
+      "outputs": [
+        {
+          "asset_id": 1,
+          "asset_type": "driver",
+          "mean": 25.8859,
+          "median": 27.0,
+          "p10": 8.0,
+          "p90": 41.0,
+          "std": 13.984895
+        },
+        {
+          "asset_id": 2,
+          "asset_type": "driver",
+          "mean": 25.958,
+          "median": 27.0,
+          "p10": 9.0,
+          "p90": 41.0,
+          "std": 13.898224
+        },
+        {
+          "asset_id": 3,
+          "asset_type": "driver",
+          "mean": 20.9684,
+          "median": 21.0,
+          "p10": 3.0,
+          "p90": 39.0,
+          "std": 13.993584
+        },
+        {
+          "asset_id": 4,
+          "asset_type": "driver",
+          "mean": 18.1536,
+          "median": 18.0,
+          "p10": 1.0,
+          "p90": 39.0,
+          "std": 13.890573
+        },
+        {
+          "asset_id": 5,
+          "asset_type": "driver",
+          "mean": 16.8092,
+          "median": 16.0,
+          "p10": -1.0,
+          "p90": 39.0,
+          "std": 14.80587
+        },
+        {
+          "asset_id": 6,
+          "asset_type": "driver",
+          "mean": 22.7584,
+          "median": 23.0,
+          "p10": 5.0,
+          "p90": 39.0,
+          "std": 14.258402
+        },
+        {
+          "asset_id": 7,
+          "asset_type": "driver",
+          "mean": 21.1425,
+          "median": 21.0,
+          "p10": 4.0,
+          "p90": 39.0,
+          "std": 14.014892
+        },
+        {
+          "asset_id": 8,
+          "asset_type": "driver",
+          "mean": 5.5986,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 20.0,
+          "std": 11.432623
+        },
+        {
+          "asset_id": 9,
+          "asset_type": "driver",
+          "mean": 8.1091,
+          "median": 7.0,
+          "p10": -2.0,
+          "p90": 21.0,
+          "std": 10.570752
+        },
+        {
+          "asset_id": 10,
+          "asset_type": "driver",
+          "mean": 8.263,
+          "median": 7.0,
+          "p10": -2.0,
+          "p90": 23.0,
+          "std": 11.119309
+        },
+        {
+          "asset_id": 11,
+          "asset_type": "driver",
+          "mean": 6.0019,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 19.0,
+          "std": 10.057778
+        },
+        {
+          "asset_id": 12,
+          "asset_type": "driver",
+          "mean": 6.4826,
+          "median": 6.0,
+          "p10": -2.0,
+          "p90": 18.0,
+          "std": 9.46549
+        },
+        {
+          "asset_id": 13,
+          "asset_type": "driver",
+          "mean": 3.7028,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 13.0,
+          "std": 8.622104
+        },
+        {
+          "asset_id": 14,
+          "asset_type": "driver",
+          "mean": 5.2623,
+          "median": 5.0,
+          "p10": -4.0,
+          "p90": 17.0,
+          "std": 10.001215
+        },
+        {
+          "asset_id": 15,
+          "asset_type": "driver",
+          "mean": 4.5294,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 15.0,
+          "std": 9.258733
+        },
+        {
+          "asset_id": 16,
+          "asset_type": "driver",
+          "mean": 6.903,
+          "median": 7.0,
+          "p10": -2.0,
+          "p90": 19.0,
+          "std": 9.788452
+        },
+        {
+          "asset_id": 17,
+          "asset_type": "driver",
+          "mean": 5.5261,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 15.0,
+          "std": 9.05157
+        },
+        {
+          "asset_id": 18,
+          "asset_type": "driver",
+          "mean": 3.4566,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 13.0,
+          "std": 9.079874
+        },
+        {
+          "asset_id": 19,
+          "asset_type": "driver",
+          "mean": 2.8831,
+          "median": 3.0,
+          "p10": -4.0,
+          "p90": 13.0,
+          "std": 8.7616
+        },
+        {
+          "asset_id": 20,
+          "asset_type": "driver",
+          "mean": 2.835,
+          "median": 3.0,
+          "p10": -4.0,
+          "p90": 12.0,
+          "std": 8.87227
+        },
+        {
+          "asset_id": 21,
+          "asset_type": "driver",
+          "mean": 4.8994,
+          "median": 5.0,
+          "p10": -4.0,
+          "p90": 15.0,
+          "std": 9.288922
+        },
+        {
+          "asset_id": 22,
+          "asset_type": "driver",
+          "mean": 4.5041,
+          "median": 4.0,
+          "p10": -2.0,
+          "p90": 14.0,
+          "std": 8.617319
+        },
+        {
+          "asset_id": 1,
+          "asset_type": "constructor",
+          "mean": 51.9934,
+          "median": 54.0,
+          "p10": 29.0,
+          "p90": 74.0,
+          "std": 17.047485
+        },
+        {
+          "asset_id": 2,
+          "asset_type": "constructor",
+          "mean": 48.322,
+          "median": 49.5,
+          "p10": 26.5,
+          "p90": 69.5,
+          "std": 16.776243
+        },
+        {
+          "asset_id": 3,
+          "asset_type": "constructor",
+          "mean": 39.0462,
+          "median": 39.0,
+          "p10": 18.0,
+          "p90": 61.0,
+          "std": 16.819859
+        },
+        {
+          "asset_id": 4,
+          "asset_type": "constructor",
+          "mean": 51.6071,
+          "median": 53.0,
+          "p10": 29.4,
+          "p90": 72.5,
+          "std": 16.602796
+        },
+        {
+          "asset_id": 5,
+          "asset_type": "constructor",
+          "mean": 13.4735,
+          "median": 13.5,
+          "p10": -2.5,
+          "p90": 28.5,
+          "std": 12.541571
+        },
+        {
+          "asset_id": 6,
+          "asset_type": "constructor",
+          "mean": 19.1802,
+          "median": 17.0,
+          "p10": 3.0,
+          "p90": 38.0,
+          "std": 14.484072
+        },
+        {
+          "asset_id": 7,
+          "asset_type": "constructor",
+          "mean": 12.4774,
+          "median": 12.5,
+          "p10": -1.5,
+          "p90": 25.5,
+          "std": 11.41961
+        },
+        {
+          "asset_id": 8,
+          "asset_type": "constructor",
+          "mean": 11.9233,
+          "median": 12.0,
+          "p10": -4.0,
+          "p90": 26.0,
+          "std": 12.393572
+        },
+        {
+          "asset_id": 9,
+          "asset_type": "constructor",
+          "mean": 10.6202,
+          "median": 11.0,
+          "p10": -6.0,
+          "p90": 24.0,
+          "std": 11.434358
+        },
+        {
+          "asset_id": 10,
+          "asset_type": "constructor",
+          "mean": 12.3738,
+          "median": 13.0,
+          "p10": -4.0,
+          "p90": 26.0,
+          "std": 11.915044
+        },
+        {
+          "asset_id": 11,
+          "asset_type": "constructor",
+          "mean": 10.4184,
+          "median": 11.5,
+          "p10": -4.5,
+          "p90": 23.5,
+          "std": 11.300413
+        }
+      ]
+    },
+    "sprint_dry": {
+      "inputs": {
+        "circuit": null,
+        "constructors": [
+          {
+            "car_pace_std": 0.8,
+            "driver_ids": [
+              2,
+              5
+            ],
+            "expected_pitstop_pts": 7.0,
+            "id": 1,
+            "ref_id": "mercedes"
+          },
+          {
+            "car_pace_std": 1.0,
+            "driver_ids": [
+              3,
+              4
+            ],
+            "expected_pitstop_pts": 6.5,
+            "id": 2,
+            "ref_id": "mclaren"
+          },
+          {
+            "car_pace_std": 1.0,
+            "driver_ids": [
+              1,
+              8
+            ],
+            "expected_pitstop_pts": 7.0,
+            "id": 3,
+            "ref_id": "red_bull"
+          },
+          {
+            "car_pace_std": 0.9,
+            "driver_ids": [
+              6,
+              7
+            ],
+            "expected_pitstop_pts": 5.5,
+            "id": 4,
+            "ref_id": "ferrari"
+          },
+          {
+            "car_pace_std": 1.8,
+            "driver_ids": [
+              9,
+              19
+            ],
+            "expected_pitstop_pts": 4.5,
+            "id": 5,
+            "ref_id": "alpine"
+          },
+          {
+            "car_pace_std": 1.8,
+            "driver_ids": [
+              10,
+              11
+            ],
+            "expected_pitstop_pts": 5.0,
+            "id": 6,
+            "ref_id": "williams"
+          },
+          {
+            "car_pace_std": 2.0,
+            "driver_ids": [
+              12,
+              13
+            ],
+            "expected_pitstop_pts": 4.5,
+            "id": 7,
+            "ref_id": "aston_martin"
+          },
+          {
+            "car_pace_std": 2.2,
+            "driver_ids": [
+              14,
+              15
+            ],
+            "expected_pitstop_pts": 4.0,
+            "id": 8,
+            "ref_id": "haas"
+          },
+          {
+            "car_pace_std": 2.2,
+            "driver_ids": [
+              17,
+              18
+            ],
+            "expected_pitstop_pts": 4.0,
+            "id": 9,
+            "ref_id": "audi"
+          },
+          {
+            "car_pace_std": 2.0,
+            "driver_ids": [
+              16,
+              20
+            ],
+            "expected_pitstop_pts": 5.0,
+            "id": 10,
+            "ref_id": "rb"
+          },
+          {
+            "car_pace_std": 2.5,
+            "driver_ids": [
+              21,
+              22
+            ],
+            "expected_pitstop_pts": 3.5,
+            "id": 11,
+            "ref_id": "cadillac"
+          }
+        ],
+        "drivers": [
+          {
+            "avg_positions_gained": 0.8,
+            "code": "VER",
+            "constructor_ref": "red_bull",
+            "dnf_probability": 0.03,
+            "fl_probability": 0.13,
+            "grid_penalty": 0,
+            "id": 1,
+            "qpace_mean": 3.5,
+            "qpace_std": 2.2
+          },
+          {
+            "avg_positions_gained": 0.5,
+            "code": "RUS",
+            "constructor_ref": "mercedes",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.12,
+            "grid_penalty": 0,
+            "id": 2,
+            "qpace_mean": 3.0,
+            "qpace_std": 1.8
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "NOR",
+            "constructor_ref": "mclaren",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.09,
+            "grid_penalty": 0,
+            "id": 3,
+            "qpace_mean": 4.0,
+            "qpace_std": 2.0
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "PIA",
+            "constructor_ref": "mclaren",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.08,
+            "grid_penalty": 0,
+            "id": 4,
+            "qpace_mean": 4.5,
+            "qpace_std": 2.0
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "ANT",
+            "constructor_ref": "mercedes",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.08,
+            "grid_penalty": 0,
+            "id": 5,
+            "qpace_mean": 4.5,
+            "qpace_std": 2.2
+          },
+          {
+            "avg_positions_gained": 0.4,
+            "code": "LEC",
+            "constructor_ref": "ferrari",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.11,
+            "grid_penalty": 0,
+            "id": 6,
+            "qpace_mean": 3.5,
+            "qpace_std": 1.8
+          },
+          {
+            "avg_positions_gained": 0.6,
+            "code": "HAM",
+            "constructor_ref": "ferrari",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.1,
+            "grid_penalty": 0,
+            "id": 7,
+            "qpace_mean": 4.0,
+            "qpace_std": 1.9
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "HAD",
+            "constructor_ref": "red_bull",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 8,
+            "qpace_mean": 8.0,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "GAS",
+            "constructor_ref": "alpine",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 9,
+            "qpace_mean": 9.0,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "SAI",
+            "constructor_ref": "williams",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 10,
+            "qpace_mean": 8.5,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "ALB",
+            "constructor_ref": "williams",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 11,
+            "qpace_mean": 9.5,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.4,
+            "code": "ALO",
+            "constructor_ref": "aston_martin",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 12,
+            "qpace_mean": 11.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "STR",
+            "constructor_ref": "aston_martin",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 13,
+            "qpace_mean": 13.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "BEA",
+            "constructor_ref": "haas",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 14,
+            "qpace_mean": 11.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "OCO",
+            "constructor_ref": "haas",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 15,
+            "qpace_mean": 12.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "LAW",
+            "constructor_ref": "rb",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 16,
+            "qpace_mean": 10.5,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "HUL",
+            "constructor_ref": "audi",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 17,
+            "qpace_mean": 12.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "BOR",
+            "constructor_ref": "audi",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 18,
+            "qpace_mean": 14.0,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "COL",
+            "constructor_ref": "alpine",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 19,
+            "qpace_mean": 13.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": -0.1,
+            "code": "LIN",
+            "constructor_ref": "rb",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 20,
+            "qpace_mean": 14.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "PER",
+            "constructor_ref": "cadillac",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 21,
+            "qpace_mean": 13.0,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "BOT",
+            "constructor_ref": "cadillac",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 22,
+            "qpace_mean": 14.0,
+            "qpace_std": 3.0
+          }
+        ],
+        "is_sprint": true,
+        "n_simulations": 10000,
+        "seed": 42,
+        "weather": null
+      },
+      "outputs": [
+        {
+          "asset_id": 1,
+          "asset_type": "driver",
+          "mean": 12.4625,
+          "median": 13.0,
+          "p10": 4.0,
+          "p90": 19.0,
+          "std": 6.454626
+        },
+        {
+          "asset_id": 2,
+          "asset_type": "driver",
+          "mean": 11.9226,
+          "median": 12.0,
+          "p10": 3.0,
+          "p90": 19.0,
+          "std": 6.704029
+        },
+        {
+          "asset_id": 3,
+          "asset_type": "driver",
+          "mean": 9.6968,
+          "median": 10.0,
+          "p10": 0.0,
+          "p90": 19.0,
+          "std": 7.021814
+        },
+        {
+          "asset_id": 4,
+          "asset_type": "driver",
+          "mean": 8.2106,
+          "median": 8.0,
+          "p10": -1.0,
+          "p90": 19.0,
+          "std": 7.047173
+        },
+        {
+          "asset_id": 5,
+          "asset_type": "driver",
+          "mean": 7.3466,
+          "median": 7.0,
+          "p10": -2.0,
+          "p90": 19.0,
+          "std": 7.440542
+        },
+        {
+          "asset_id": 6,
+          "asset_type": "driver",
+          "mean": 10.3316,
+          "median": 11.0,
+          "p10": 1.0,
+          "p90": 19.0,
+          "std": 6.98218
+        },
+        {
+          "asset_id": 7,
+          "asset_type": "driver",
+          "mean": 9.5336,
+          "median": 10.0,
+          "p10": 1.0,
+          "p90": 19.0,
+          "std": 7.017725
+        },
+        {
+          "asset_id": 8,
+          "asset_type": "driver",
+          "mean": 2.5901,
+          "median": 3.0,
+          "p10": -4.0,
+          "p90": 10.0,
+          "std": 6.155378
+        },
+        {
+          "asset_id": 9,
+          "asset_type": "driver",
+          "mean": 5.6635,
+          "median": 6.0,
+          "p10": -2.0,
+          "p90": 13.0,
+          "std": 5.894596
+        },
+        {
+          "asset_id": 10,
+          "asset_type": "driver",
+          "mean": 5.1324,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 13.0,
+          "std": 6.230206
+        },
+        {
+          "asset_id": 11,
+          "asset_type": "driver",
+          "mean": 3.9175,
+          "median": 3.0,
+          "p10": -2.0,
+          "p90": 12.0,
+          "std": 5.904599
+        },
+        {
+          "asset_id": 12,
+          "asset_type": "driver",
+          "mean": 5.1479,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 12.0,
+          "std": 5.823575
+        },
+        {
+          "asset_id": 13,
+          "asset_type": "driver",
+          "mean": 3.3438,
+          "median": 3.0,
+          "p10": -4.0,
+          "p90": 10.0,
+          "std": 5.643616
+        },
+        {
+          "asset_id": 14,
+          "asset_type": "driver",
+          "mean": 4.2202,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 12.0,
+          "std": 6.130458
+        },
+        {
+          "asset_id": 15,
+          "asset_type": "driver",
+          "mean": 3.8388,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 12.0,
+          "std": 5.93692
+        },
+        {
+          "asset_id": 16,
+          "asset_type": "driver",
+          "mean": 5.4047,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 12.0,
+          "std": 5.835351
+        },
+        {
+          "asset_id": 17,
+          "asset_type": "driver",
+          "mean": 4.7955,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 12.0,
+          "std": 5.766947
+        },
+        {
+          "asset_id": 18,
+          "asset_type": "driver",
+          "mean": 3.3907,
+          "median": 3.0,
+          "p10": -4.0,
+          "p90": 10.0,
+          "std": 5.947525
+        },
+        {
+          "asset_id": 19,
+          "asset_type": "driver",
+          "mean": 2.6634,
+          "median": 3.0,
+          "p10": -4.0,
+          "p90": 10.0,
+          "std": 5.722001
+        },
+        {
+          "asset_id": 20,
+          "asset_type": "driver",
+          "mean": 2.859,
+          "median": 3.0,
+          "p10": -4.0,
+          "p90": 10.0,
+          "std": 5.780322
+        },
+        {
+          "asset_id": 21,
+          "asset_type": "driver",
+          "mean": 4.447,
+          "median": 4.0,
+          "p10": -2.0,
+          "p90": 12.0,
+          "std": 6.015895
+        },
+        {
+          "asset_id": 22,
+          "asset_type": "driver",
+          "mean": 4.1138,
+          "median": 4.0,
+          "p10": -2.0,
+          "p90": 12.0,
+          "std": 5.796693
+        },
+        {
+          "asset_id": 1,
+          "asset_type": "constructor",
+          "mean": 24.9744,
+          "median": 26.0,
+          "p10": 13.0,
+          "p90": 36.0,
+          "std": 8.574471
+        },
+        {
+          "asset_id": 2,
+          "asset_type": "constructor",
+          "mean": 23.5144,
+          "median": 24.0,
+          "p10": 12.0,
+          "p90": 34.0,
+          "std": 8.593579
+        },
+        {
+          "asset_id": 3,
+          "asset_type": "constructor",
+          "mean": 18.4913,
+          "median": 19.0,
+          "p10": 7.0,
+          "p90": 30.0,
+          "std": 9.140204
+        },
+        {
+          "asset_id": 4,
+          "asset_type": "constructor",
+          "mean": 25.6734,
+          "median": 26.0,
+          "p10": 14.0,
+          "p90": 37.0,
+          "std": 8.3469
+        },
+        {
+          "asset_id": 5,
+          "asset_type": "constructor",
+          "mean": 7.3552,
+          "median": 7.0,
+          "p10": -2.1,
+          "p90": 18.0,
+          "std": 7.9186
+        },
+        {
+          "asset_id": 6,
+          "asset_type": "constructor",
+          "mean": 10.0592,
+          "median": 10.0,
+          "p10": 0.0,
+          "p90": 21.0,
+          "std": 8.545917
+        },
+        {
+          "asset_id": 7,
+          "asset_type": "constructor",
+          "mean": 7.3577,
+          "median": 7.0,
+          "p10": -2.0,
+          "p90": 17.0,
+          "std": 7.668295
+        },
+        {
+          "asset_id": 8,
+          "asset_type": "constructor",
+          "mean": 7.1786,
+          "median": 7.0,
+          "p10": -3.0,
+          "p90": 18.0,
+          "std": 8.048472
+        },
+        {
+          "asset_id": 9,
+          "asset_type": "constructor",
+          "mean": 6.7817,
+          "median": 7.0,
+          "p10": -3.0,
+          "p90": 17.0,
+          "std": 7.806769
+        },
+        {
+          "asset_id": 10,
+          "asset_type": "constructor",
+          "mean": 6.8605,
+          "median": 7.0,
+          "p10": -3.0,
+          "p90": 17.0,
+          "std": 7.818736
+        },
+        {
+          "asset_id": 11,
+          "asset_type": "constructor",
+          "mean": 7.0887,
+          "median": 7.0,
+          "p10": -3.0,
+          "p90": 17.0,
+          "std": 7.904317
+        }
+      ]
+    },
+    "street_circuit": {
+      "inputs": {
+        "circuit": {
+          "altitude": 30,
+          "avg_degradation": 0.2,
+          "high_speed": 0.15,
+          "overtake_difficulty": 0.95,
+          "street_circuit": true
+        },
+        "constructors": [
+          {
+            "car_pace_std": 0.8,
+            "driver_ids": [
+              2,
+              5
+            ],
+            "expected_pitstop_pts": 7.0,
+            "id": 1,
+            "ref_id": "mercedes"
+          },
+          {
+            "car_pace_std": 1.0,
+            "driver_ids": [
+              3,
+              4
+            ],
+            "expected_pitstop_pts": 6.5,
+            "id": 2,
+            "ref_id": "mclaren"
+          },
+          {
+            "car_pace_std": 1.0,
+            "driver_ids": [
+              1,
+              8
+            ],
+            "expected_pitstop_pts": 7.0,
+            "id": 3,
+            "ref_id": "red_bull"
+          },
+          {
+            "car_pace_std": 0.9,
+            "driver_ids": [
+              6,
+              7
+            ],
+            "expected_pitstop_pts": 5.5,
+            "id": 4,
+            "ref_id": "ferrari"
+          },
+          {
+            "car_pace_std": 1.8,
+            "driver_ids": [
+              9,
+              19
+            ],
+            "expected_pitstop_pts": 4.5,
+            "id": 5,
+            "ref_id": "alpine"
+          },
+          {
+            "car_pace_std": 1.8,
+            "driver_ids": [
+              10,
+              11
+            ],
+            "expected_pitstop_pts": 5.0,
+            "id": 6,
+            "ref_id": "williams"
+          },
+          {
+            "car_pace_std": 2.0,
+            "driver_ids": [
+              12,
+              13
+            ],
+            "expected_pitstop_pts": 4.5,
+            "id": 7,
+            "ref_id": "aston_martin"
+          },
+          {
+            "car_pace_std": 2.2,
+            "driver_ids": [
+              14,
+              15
+            ],
+            "expected_pitstop_pts": 4.0,
+            "id": 8,
+            "ref_id": "haas"
+          },
+          {
+            "car_pace_std": 2.2,
+            "driver_ids": [
+              17,
+              18
+            ],
+            "expected_pitstop_pts": 4.0,
+            "id": 9,
+            "ref_id": "audi"
+          },
+          {
+            "car_pace_std": 2.0,
+            "driver_ids": [
+              16,
+              20
+            ],
+            "expected_pitstop_pts": 5.0,
+            "id": 10,
+            "ref_id": "rb"
+          },
+          {
+            "car_pace_std": 2.5,
+            "driver_ids": [
+              21,
+              22
+            ],
+            "expected_pitstop_pts": 3.5,
+            "id": 11,
+            "ref_id": "cadillac"
+          }
+        ],
+        "drivers": [
+          {
+            "avg_positions_gained": 0.8,
+            "code": "VER",
+            "constructor_ref": "red_bull",
+            "dnf_probability": 0.03,
+            "fl_probability": 0.13,
+            "grid_penalty": 0,
+            "id": 1,
+            "qpace_mean": 3.5,
+            "qpace_std": 2.2
+          },
+          {
+            "avg_positions_gained": 0.5,
+            "code": "RUS",
+            "constructor_ref": "mercedes",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.12,
+            "grid_penalty": 0,
+            "id": 2,
+            "qpace_mean": 3.0,
+            "qpace_std": 1.8
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "NOR",
+            "constructor_ref": "mclaren",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.09,
+            "grid_penalty": 0,
+            "id": 3,
+            "qpace_mean": 4.0,
+            "qpace_std": 2.0
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "PIA",
+            "constructor_ref": "mclaren",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.08,
+            "grid_penalty": 0,
+            "id": 4,
+            "qpace_mean": 4.5,
+            "qpace_std": 2.0
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "ANT",
+            "constructor_ref": "mercedes",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.08,
+            "grid_penalty": 0,
+            "id": 5,
+            "qpace_mean": 4.5,
+            "qpace_std": 2.2
+          },
+          {
+            "avg_positions_gained": 0.4,
+            "code": "LEC",
+            "constructor_ref": "ferrari",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.11,
+            "grid_penalty": 0,
+            "id": 6,
+            "qpace_mean": 3.5,
+            "qpace_std": 1.8
+          },
+          {
+            "avg_positions_gained": 0.6,
+            "code": "HAM",
+            "constructor_ref": "ferrari",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.1,
+            "grid_penalty": 0,
+            "id": 7,
+            "qpace_mean": 4.0,
+            "qpace_std": 1.9
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "HAD",
+            "constructor_ref": "red_bull",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 8,
+            "qpace_mean": 8.0,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "GAS",
+            "constructor_ref": "alpine",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 9,
+            "qpace_mean": 9.0,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "SAI",
+            "constructor_ref": "williams",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 10,
+            "qpace_mean": 8.5,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "ALB",
+            "constructor_ref": "williams",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 11,
+            "qpace_mean": 9.5,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.4,
+            "code": "ALO",
+            "constructor_ref": "aston_martin",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 12,
+            "qpace_mean": 11.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "STR",
+            "constructor_ref": "aston_martin",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 13,
+            "qpace_mean": 13.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "BEA",
+            "constructor_ref": "haas",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 14,
+            "qpace_mean": 11.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "OCO",
+            "constructor_ref": "haas",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 15,
+            "qpace_mean": 12.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "LAW",
+            "constructor_ref": "rb",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 16,
+            "qpace_mean": 10.5,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "HUL",
+            "constructor_ref": "audi",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 17,
+            "qpace_mean": 12.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "BOR",
+            "constructor_ref": "audi",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 18,
+            "qpace_mean": 14.0,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "COL",
+            "constructor_ref": "alpine",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 19,
+            "qpace_mean": 13.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": -0.1,
+            "code": "LIN",
+            "constructor_ref": "rb",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 20,
+            "qpace_mean": 14.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "PER",
+            "constructor_ref": "cadillac",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 21,
+            "qpace_mean": 13.0,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "BOT",
+            "constructor_ref": "cadillac",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 22,
+            "qpace_mean": 14.0,
+            "qpace_std": 3.0
+          }
+        ],
+        "is_sprint": false,
+        "n_simulations": 10000,
+        "seed": 42,
+        "weather": null
+      },
+      "outputs": [
+        {
+          "asset_id": 1,
+          "asset_type": "driver",
+          "mean": 24.9488,
+          "median": 26.0,
+          "p10": 7.0,
+          "p90": 40.0,
+          "std": 13.879387
+        },
+        {
+          "asset_id": 2,
+          "asset_type": "driver",
+          "mean": 25.6333,
+          "median": 27.0,
+          "p10": 9.0,
+          "p90": 40.0,
+          "std": 13.827488
+        },
+        {
+          "asset_id": 3,
+          "asset_type": "driver",
+          "mean": 20.8647,
+          "median": 21.0,
+          "p10": 3.0,
+          "p90": 39.0,
+          "std": 14.053249
+        },
+        {
+          "asset_id": 4,
+          "asset_type": "driver",
+          "mean": 18.1749,
+          "median": 18.0,
+          "p10": 1.0,
+          "p90": 39.0,
+          "std": 13.844158
+        },
+        {
+          "asset_id": 5,
+          "asset_type": "driver",
+          "mean": 16.6855,
+          "median": 16.0,
+          "p10": -1.0,
+          "p90": 39.0,
+          "std": 14.857106
+        },
+        {
+          "asset_id": 6,
+          "asset_type": "driver",
+          "mean": 22.5608,
+          "median": 23.0,
+          "p10": 5.0,
+          "p90": 40.0,
+          "std": 14.273062
+        },
+        {
+          "asset_id": 7,
+          "asset_type": "driver",
+          "mean": 20.5699,
+          "median": 20.0,
+          "p10": 3.0,
+          "p90": 39.0,
+          "std": 13.939172
+        },
+        {
+          "asset_id": 8,
+          "asset_type": "driver",
+          "mean": 5.5436,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 20.0,
+          "std": 11.496004
+        },
+        {
+          "asset_id": 9,
+          "asset_type": "driver",
+          "mean": 7.8664,
+          "median": 6.0,
+          "p10": -2.0,
+          "p90": 21.0,
+          "std": 10.55476
+        },
+        {
+          "asset_id": 10,
+          "asset_type": "driver",
+          "mean": 7.8438,
+          "median": 6.0,
+          "p10": -2.0,
+          "p90": 22.0,
+          "std": 11.037101
+        },
+        {
+          "asset_id": 11,
+          "asset_type": "driver",
+          "mean": 5.6883,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 18.0,
+          "std": 10.048549
+        },
+        {
+          "asset_id": 12,
+          "asset_type": "driver",
+          "mean": 5.9206,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 17.0,
+          "std": 9.253124
+        },
+        {
+          "asset_id": 13,
+          "asset_type": "driver",
+          "mean": 3.4568,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 12.0,
+          "std": 8.478475
+        },
+        {
+          "asset_id": 14,
+          "asset_type": "driver",
+          "mean": 5.004,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 17.0,
+          "std": 9.995578
+        },
+        {
+          "asset_id": 15,
+          "asset_type": "driver",
+          "mean": 4.2853,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 15.0,
+          "std": 9.246021
+        },
+        {
+          "asset_id": 16,
+          "asset_type": "driver",
+          "mean": 6.5577,
+          "median": 6.0,
+          "p10": -2.0,
+          "p90": 18.0,
+          "std": 9.662695
+        },
+        {
+          "asset_id": 17,
+          "asset_type": "driver",
+          "mean": 5.188,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 15.0,
+          "std": 8.850269
+        },
+        {
+          "asset_id": 18,
+          "asset_type": "driver",
+          "mean": 3.1955,
+          "median": 4.0,
+          "p10": -4.0,
+          "p90": 12.0,
+          "std": 8.931051
+        },
+        {
+          "asset_id": 19,
+          "asset_type": "driver",
+          "mean": 2.6462,
+          "median": 2.0,
+          "p10": -4.0,
+          "p90": 12.0,
+          "std": 8.645879
+        },
+        {
+          "asset_id": 20,
+          "asset_type": "driver",
+          "mean": 2.6591,
+          "median": 2.0,
+          "p10": -4.0,
+          "p90": 12.0,
+          "std": 8.822204
+        },
+        {
+          "asset_id": 21,
+          "asset_type": "driver",
+          "mean": 4.6039,
+          "median": 5.0,
+          "p10": -2.0,
+          "p90": 15.0,
+          "std": 9.206183
+        },
+        {
+          "asset_id": 22,
+          "asset_type": "driver",
+          "mean": 4.2261,
+          "median": 4.0,
+          "p10": -2.0,
+          "p90": 14.0,
+          "std": 8.494044
+        },
+        {
+          "asset_id": 1,
+          "asset_type": "constructor",
+          "mean": 51.484,
+          "median": 53.0,
+          "p10": 28.0,
+          "p90": 73.0,
+          "std": 17.020151
+        },
+        {
+          "asset_id": 2,
+          "asset_type": "constructor",
+          "mean": 48.2276,
+          "median": 49.5,
+          "p10": 25.5,
+          "p90": 69.5,
+          "std": 16.935909
+        },
+        {
+          "asset_id": 3,
+          "asset_type": "constructor",
+          "mean": 38.1001,
+          "median": 38.0,
+          "p10": 16.0,
+          "p90": 60.0,
+          "std": 16.847335
+        },
+        {
+          "asset_id": 4,
+          "asset_type": "constructor",
+          "mean": 50.8629,
+          "median": 52.5,
+          "p10": 28.5,
+          "p90": 72.5,
+          "std": 16.659106
+        },
+        {
+          "asset_id": 5,
+          "asset_type": "constructor",
+          "mean": 12.9749,
+          "median": 12.5,
+          "p10": -2.5,
+          "p90": 28.5,
+          "std": 12.475783
+        },
+        {
+          "asset_id": 6,
+          "asset_type": "constructor",
+          "mean": 18.5024,
+          "median": 17.0,
+          "p10": 3.0,
+          "p90": 37.0,
+          "std": 14.475165
+        },
+        {
+          "asset_id": 7,
+          "asset_type": "constructor",
+          "mean": 11.7294,
+          "median": 11.5,
+          "p10": -1.5,
+          "p90": 24.5,
+          "std": 11.215845
+        },
+        {
+          "asset_id": 8,
+          "asset_type": "constructor",
+          "mean": 11.3549,
+          "median": 11.0,
+          "p10": -4.0,
+          "p90": 25.0,
+          "std": 12.340435
+        },
+        {
+          "asset_id": 9,
+          "asset_type": "constructor",
+          "mean": 10.056,
+          "median": 11.0,
+          "p10": -7.0,
+          "p90": 23.0,
+          "std": 11.181049
+        },
+        {
+          "asset_id": 10,
+          "asset_type": "constructor",
+          "mean": 11.7856,
+          "median": 12.0,
+          "p10": -4.1,
+          "p90": 25.0,
+          "std": 11.70453
+        },
+        {
+          "asset_id": 11,
+          "asset_type": "constructor",
+          "mean": 9.8479,
+          "median": 10.5,
+          "p10": -5.5,
+          "p90": 22.5,
+          "std": 11.195127
+        }
+      ]
+    },
+    "wet_race": {
+      "inputs": {
+        "circuit": null,
+        "constructors": [
+          {
+            "car_pace_std": 0.8,
+            "driver_ids": [
+              2,
+              5
+            ],
+            "expected_pitstop_pts": 7.0,
+            "id": 1,
+            "ref_id": "mercedes"
+          },
+          {
+            "car_pace_std": 1.0,
+            "driver_ids": [
+              3,
+              4
+            ],
+            "expected_pitstop_pts": 6.5,
+            "id": 2,
+            "ref_id": "mclaren"
+          },
+          {
+            "car_pace_std": 1.0,
+            "driver_ids": [
+              1,
+              8
+            ],
+            "expected_pitstop_pts": 7.0,
+            "id": 3,
+            "ref_id": "red_bull"
+          },
+          {
+            "car_pace_std": 0.9,
+            "driver_ids": [
+              6,
+              7
+            ],
+            "expected_pitstop_pts": 5.5,
+            "id": 4,
+            "ref_id": "ferrari"
+          },
+          {
+            "car_pace_std": 1.8,
+            "driver_ids": [
+              9,
+              19
+            ],
+            "expected_pitstop_pts": 4.5,
+            "id": 5,
+            "ref_id": "alpine"
+          },
+          {
+            "car_pace_std": 1.8,
+            "driver_ids": [
+              10,
+              11
+            ],
+            "expected_pitstop_pts": 5.0,
+            "id": 6,
+            "ref_id": "williams"
+          },
+          {
+            "car_pace_std": 2.0,
+            "driver_ids": [
+              12,
+              13
+            ],
+            "expected_pitstop_pts": 4.5,
+            "id": 7,
+            "ref_id": "aston_martin"
+          },
+          {
+            "car_pace_std": 2.2,
+            "driver_ids": [
+              14,
+              15
+            ],
+            "expected_pitstop_pts": 4.0,
+            "id": 8,
+            "ref_id": "haas"
+          },
+          {
+            "car_pace_std": 2.2,
+            "driver_ids": [
+              17,
+              18
+            ],
+            "expected_pitstop_pts": 4.0,
+            "id": 9,
+            "ref_id": "audi"
+          },
+          {
+            "car_pace_std": 2.0,
+            "driver_ids": [
+              16,
+              20
+            ],
+            "expected_pitstop_pts": 5.0,
+            "id": 10,
+            "ref_id": "rb"
+          },
+          {
+            "car_pace_std": 2.5,
+            "driver_ids": [
+              21,
+              22
+            ],
+            "expected_pitstop_pts": 3.5,
+            "id": 11,
+            "ref_id": "cadillac"
+          }
+        ],
+        "drivers": [
+          {
+            "avg_positions_gained": 0.8,
+            "code": "VER",
+            "constructor_ref": "red_bull",
+            "dnf_probability": 0.03,
+            "fl_probability": 0.13,
+            "grid_penalty": 0,
+            "id": 1,
+            "qpace_mean": 3.5,
+            "qpace_std": 2.2
+          },
+          {
+            "avg_positions_gained": 0.5,
+            "code": "RUS",
+            "constructor_ref": "mercedes",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.12,
+            "grid_penalty": 0,
+            "id": 2,
+            "qpace_mean": 3.0,
+            "qpace_std": 1.8
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "NOR",
+            "constructor_ref": "mclaren",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.09,
+            "grid_penalty": 0,
+            "id": 3,
+            "qpace_mean": 4.0,
+            "qpace_std": 2.0
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "PIA",
+            "constructor_ref": "mclaren",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.08,
+            "grid_penalty": 0,
+            "id": 4,
+            "qpace_mean": 4.5,
+            "qpace_std": 2.0
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "ANT",
+            "constructor_ref": "mercedes",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.08,
+            "grid_penalty": 0,
+            "id": 5,
+            "qpace_mean": 4.5,
+            "qpace_std": 2.2
+          },
+          {
+            "avg_positions_gained": 0.4,
+            "code": "LEC",
+            "constructor_ref": "ferrari",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.11,
+            "grid_penalty": 0,
+            "id": 6,
+            "qpace_mean": 3.5,
+            "qpace_std": 1.8
+          },
+          {
+            "avg_positions_gained": 0.6,
+            "code": "HAM",
+            "constructor_ref": "ferrari",
+            "dnf_probability": 0.04,
+            "fl_probability": 0.1,
+            "grid_penalty": 0,
+            "id": 7,
+            "qpace_mean": 4.0,
+            "qpace_std": 1.9
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "HAD",
+            "constructor_ref": "red_bull",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 8,
+            "qpace_mean": 8.0,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "GAS",
+            "constructor_ref": "alpine",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 9,
+            "qpace_mean": 9.0,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.3,
+            "code": "SAI",
+            "constructor_ref": "williams",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.03,
+            "grid_penalty": 0,
+            "id": 10,
+            "qpace_mean": 8.5,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "ALB",
+            "constructor_ref": "williams",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 11,
+            "qpace_mean": 9.5,
+            "qpace_std": 2.5
+          },
+          {
+            "avg_positions_gained": 0.4,
+            "code": "ALO",
+            "constructor_ref": "aston_martin",
+            "dnf_probability": 0.05,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 12,
+            "qpace_mean": 11.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "STR",
+            "constructor_ref": "aston_martin",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 13,
+            "qpace_mean": 13.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "BEA",
+            "constructor_ref": "haas",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 14,
+            "qpace_mean": 11.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "OCO",
+            "constructor_ref": "haas",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 15,
+            "qpace_mean": 12.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.2,
+            "code": "LAW",
+            "constructor_ref": "rb",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.02,
+            "grid_penalty": 0,
+            "id": 16,
+            "qpace_mean": 10.5,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "HUL",
+            "constructor_ref": "audi",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 17,
+            "qpace_mean": 12.0,
+            "qpace_std": 2.8
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "BOR",
+            "constructor_ref": "audi",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 18,
+            "qpace_mean": 14.0,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "COL",
+            "constructor_ref": "alpine",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 19,
+            "qpace_mean": 13.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": -0.1,
+            "code": "LIN",
+            "constructor_ref": "rb",
+            "dnf_probability": 0.08,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 20,
+            "qpace_mean": 14.5,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.1,
+            "code": "PER",
+            "constructor_ref": "cadillac",
+            "dnf_probability": 0.07,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 21,
+            "qpace_mean": 13.0,
+            "qpace_std": 3.0
+          },
+          {
+            "avg_positions_gained": 0.0,
+            "code": "BOT",
+            "constructor_ref": "cadillac",
+            "dnf_probability": 0.06,
+            "fl_probability": 0.01,
+            "grid_penalty": 0,
+            "id": 22,
+            "qpace_mean": 14.0,
+            "qpace_std": 3.0
+          }
+        ],
+        "is_sprint": false,
+        "n_simulations": 10000,
+        "seed": 42,
+        "weather": {
+          "dnf_multiplier": 1.3,
+          "is_wet": true,
+          "quali_std_multiplier": 1.5,
+          "race_noise_multiplier": 1.4
+        }
+      },
+      "outputs": [
+        {
+          "asset_id": 1,
+          "asset_type": "driver",
+          "mean": 22.8957,
+          "median": 24.0,
+          "p10": 2.0,
+          "p90": 41.0,
+          "std": 15.584576
+        },
+        {
+          "asset_id": 2,
+          "asset_type": "driver",
+          "mean": 22.6618,
+          "median": 24.0,
+          "p10": 2.0,
+          "p90": 41.0,
+          "std": 15.169074
+        },
+        {
+          "asset_id": 3,
+          "asset_type": "driver",
+          "mean": 18.8132,
+          "median": 19.0,
+          "p10": 0.0,
+          "p90": 39.0,
+          "std": 15.220233
+        },
+        {
+          "asset_id": 4,
+          "asset_type": "driver",
+          "mean": 16.6795,
+          "median": 17.0,
+          "p10": -2.0,
+          "p90": 39.0,
+          "std": 15.126222
+        },
+        {
+          "asset_id": 5,
+          "asset_type": "driver",
+          "mean": 15.331,
+          "median": 15.0,
+          "p10": -6.0,
+          "p90": 39.0,
+          "std": 16.2346
+        },
+        {
+          "asset_id": 6,
+          "asset_type": "driver",
+          "mean": 19.9373,
+          "median": 21.0,
+          "p10": 0.0,
+          "p90": 39.0,
+          "std": 15.47985
+        },
+        {
+          "asset_id": 7,
+          "asset_type": "driver",
+          "mean": 19.1383,
+          "median": 19.0,
+          "p10": 0.0,
+          "p90": 39.0,
+          "std": 15.323249
+        },
+        {
+          "asset_id": 8,
+          "asset_type": "driver",
+          "mean": 6.9588,
+          "median": 5.0,
+          "p10": -10.0,
+          "p90": 26.0,
+          "std": 13.865082
+        },
+        {
+          "asset_id": 9,
+          "asset_type": "driver",
+          "mean": 8.7914,
+          "median": 7.0,
+          "p10": -4.0,
+          "p90": 25.0,
+          "std": 12.73468
+        },
+        {
+          "asset_id": 10,
+          "asset_type": "driver",
+          "mean": 9.1506,
+          "median": 7.0,
+          "p10": -4.0,
+          "p90": 27.0,
+          "std": 13.070406
+        },
+        {
+          "asset_id": 11,
+          "asset_type": "driver",
+          "mean": 7.5689,
+          "median": 6.0,
+          "p10": -4.0,
+          "p90": 23.0,
+          "std": 12.242894
+        },
+        {
+          "asset_id": 12,
+          "asset_type": "driver",
+          "mean": 7.8258,
+          "median": 7.0,
+          "p10": -4.0,
+          "p90": 23.0,
+          "std": 11.823631
+        },
+        {
+          "asset_id": 13,
+          "asset_type": "driver",
+          "mean": 5.1219,
+          "median": 5.0,
+          "p10": -6.0,
+          "p90": 18.0,
+          "std": 10.762474
+        },
+        {
+          "asset_id": 14,
+          "asset_type": "driver",
+          "mean": 6.4762,
+          "median": 5.0,
+          "p10": -8.0,
+          "p90": 22.0,
+          "std": 12.381576
+        },
+        {
+          "asset_id": 15,
+          "asset_type": "driver",
+          "mean": 5.8659,
+          "median": 5.0,
+          "p10": -6.0,
+          "p90": 20.0,
+          "std": 11.52214
+        },
+        {
+          "asset_id": 16,
+          "asset_type": "driver",
+          "mean": 7.9497,
+          "median": 7.0,
+          "p10": -4.0,
+          "p90": 23.0,
+          "std": 12.166025
+        },
+        {
+          "asset_id": 17,
+          "asset_type": "driver",
+          "mean": 6.6442,
+          "median": 7.0,
+          "p10": -4.0,
+          "p90": 20.0,
+          "std": 11.429917
+        },
+        {
+          "asset_id": 18,
+          "asset_type": "driver",
+          "mean": 4.7133,
+          "median": 5.0,
+          "p10": -13.0,
+          "p90": 18.0,
+          "std": 11.374792
+        },
+        {
+          "asset_id": 19,
+          "asset_type": "driver",
+          "mean": 4.3973,
+          "median": 5.0,
+          "p10": -8.0,
+          "p90": 18.0,
+          "std": 11.186065
+        },
+        {
+          "asset_id": 20,
+          "asset_type": "driver",
+          "mean": 4.0377,
+          "median": 5.0,
+          "p10": -16.0,
+          "p90": 17.0,
+          "std": 11.072636
+        },
+        {
+          "asset_id": 21,
+          "asset_type": "driver",
+          "mean": 5.9877,
+          "median": 5.0,
+          "p10": -6.0,
+          "p90": 20.0,
+          "std": 11.59397
+        },
+        {
+          "asset_id": 22,
+          "asset_type": "driver",
+          "mean": 5.7923,
+          "median": 5.0,
+          "p10": -4.0,
+          "p90": 18.0,
+          "std": 10.786527
+        },
+        {
+          "asset_id": 1,
+          "asset_type": "constructor",
+          "mean": 46.7126,
+          "median": 48.0,
+          "p10": 21.0,
+          "p90": 71.0,
+          "std": 18.984531
+        },
+        {
+          "asset_id": 2,
+          "asset_type": "constructor",
+          "mean": 44.1146,
+          "median": 44.5,
+          "p10": 18.5,
+          "p90": 68.5,
+          "std": 18.961552
+        },
+        {
+          "asset_id": 3,
+          "asset_type": "constructor",
+          "mean": 36.8355,
+          "median": 37.0,
+          "p10": 12.0,
+          "p90": 62.0,
+          "std": 19.043656
+        },
+        {
+          "asset_id": 4,
+          "asset_type": "constructor",
+          "mean": 46.4235,
+          "median": 47.5,
+          "p10": 20.5,
+          "p90": 69.5,
+          "std": 18.721241
+        },
+        {
+          "asset_id": 5,
+          "asset_type": "constructor",
+          "mean": 15.7084,
+          "median": 14.5,
+          "p10": -4.5,
+          "p90": 35.5,
+          "std": 15.568384
+        },
+        {
+          "asset_id": 6,
+          "asset_type": "constructor",
+          "mean": 21.2215,
+          "median": 20.0,
+          "p10": 1.0,
+          "p90": 44.0,
+          "std": 17.01349
+        },
+        {
+          "asset_id": 7,
+          "asset_type": "constructor",
+          "mean": 15.236,
+          "median": 14.5,
+          "p10": -3.5,
+          "p90": 32.5,
+          "std": 14.428773
+        },
+        {
+          "asset_id": 8,
+          "asset_type": "constructor",
+          "mean": 14.389,
+          "median": 14.0,
+          "p10": -6.0,
+          "p90": 34.0,
+          "std": 15.512095
+        },
+        {
+          "asset_id": 9,
+          "asset_type": "constructor",
+          "mean": 12.975,
+          "median": 14.0,
+          "p10": -6.0,
+          "p90": 30.0,
+          "std": 14.570943
+        },
+        {
+          "asset_id": 10,
+          "asset_type": "constructor",
+          "mean": 14.6657,
+          "median": 15.0,
+          "p10": -5.0,
+          "p90": 33.0,
+          "std": 14.90868
+        },
+        {
+          "asset_id": 11,
+          "asset_type": "constructor",
+          "mean": 12.786,
+          "median": 13.5,
+          "p10": -6.5,
+          "p90": 29.5,
+          "std": 14.357792
+        }
+      ]
+    }
+  }
+}
