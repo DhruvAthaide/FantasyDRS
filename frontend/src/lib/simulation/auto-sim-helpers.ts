@@ -328,59 +328,121 @@ export async function generateStrategyBrief(
 
 // ---------------------------------------------------------------------------
 // buildAssetListsForRace — shared by /api/best-teams and /api/my-team/compare
+//
+// Perf (Plan 06-02): all hydration done via bulk queries. Was ~60+ sequential
+// Neon round-trips (per-driver price + sim + constructor lookup, per-constructor
+// price + sim); now 4 queries total.
 // ---------------------------------------------------------------------------
+export interface AssetListBundle {
+  drivers: Asset[];
+  constructors: Asset[];
+  // Source rows exposed for routes that need to build response DTOs without
+  // re-querying (e.g. best-teams).
+  driversById: Map<number, typeof drivers.$inferSelect>;
+  constructorsById: Map<number, typeof constructors.$inferSelect>;
+  driverCodesByConstructorId: Map<number, string[]>;
+}
+
 export async function buildAssetListsForRace(
   raceId: number | null
-): Promise<{ drivers: Asset[]; constructors: Asset[] }> {
-  const allDrivers = await db.select().from(drivers);
-  const allCtors = await db.select().from(constructors);
+): Promise<AssetListBundle> {
+  // 1. Fetch all drivers + constructors in parallel.
+  const [allDrivers, allCtors] = await Promise.all([
+    db.select().from(drivers),
+    db.select().from(constructors),
+  ]);
 
-  const driverAssets: Asset[] = [];
-  for (const d of allDrivers) {
-    const price = await latestPrice("driver", d.id);
-    const simMean =
-      raceId !== null ? await latestSimMean("driver", d.id, raceId) : null;
-    let ctorName = "";
-    let ctorColor = "#888";
-    if (d.constructorId !== null) {
-      const c = await db
-        .select({ name: constructors.name, color: constructors.color })
-        .from(constructors)
-        .where(eq(constructors.id, d.constructorId))
-        .limit(1);
-      if (c.length > 0) {
-        ctorName = c[0].name;
-        ctorColor = c[0].color ?? "#888";
+  // 2. Bulk-fetch latest price per (asset_type, asset_id). Order by id desc and
+  //    keep first occurrence per key.
+  const allPrices = await db
+    .select({
+      assetType: fantasyPrices.assetType,
+      assetId: fantasyPrices.assetId,
+      price: fantasyPrices.price,
+      id: fantasyPrices.id,
+    })
+    .from(fantasyPrices)
+    .orderBy(desc(fantasyPrices.id));
+  const priceByKey = new Map<string, number>();
+  for (const row of allPrices) {
+    const key = `${row.assetType}:${row.assetId}`;
+    if (!priceByKey.has(key)) priceByKey.set(key, row.price);
+  }
+
+  // 3. Bulk-fetch latest sim mean for this race (optional).
+  const simByKey = new Map<string, number>();
+  if (raceId !== null) {
+    const allSims = await db
+      .select({
+        assetType: simulationResults.assetType,
+        assetId: simulationResults.assetId,
+        mean: simulationResults.expectedPtsMean,
+        id: simulationResults.id,
+      })
+      .from(simulationResults)
+      .where(eq(simulationResults.raceId, raceId))
+      .orderBy(desc(simulationResults.id));
+    for (const row of allSims) {
+      const key = `${row.assetType}:${row.assetId}`;
+      if (!simByKey.has(key) && row.mean !== null) {
+        simByKey.set(key, row.mean);
       }
     }
-    driverAssets.push({
+  }
+
+  // 4. Build lookup maps for downstream consumers.
+  const driversById = new Map<number, typeof drivers.$inferSelect>();
+  for (const d of allDrivers) driversById.set(d.id, d);
+  const constructorsById = new Map<number, typeof constructors.$inferSelect>();
+  for (const c of allCtors) constructorsById.set(c.id, c);
+
+  const driverCodesByConstructorId = new Map<number, string[]>();
+  for (const d of allDrivers) {
+    if (d.constructorId === null) continue;
+    const arr = driverCodesByConstructorId.get(d.constructorId) ?? [];
+    arr.push(d.code);
+    driverCodesByConstructorId.set(d.constructorId, arr);
+  }
+
+  // 5. Assemble Asset arrays entirely from in-memory maps.
+  const driverAssets: Asset[] = allDrivers.map((d) => {
+    const price = priceByKey.get(`driver:${d.id}`) ?? 0;
+    const simMean = simByKey.get(`driver:${d.id}`);
+    const ctor = d.constructorId !== null ? constructorsById.get(d.constructorId) : undefined;
+    return {
       id: d.id,
       code: d.code,
       price,
-      expected_pts: simMean !== null ? simMean : price * _PRICE_FALLBACK_MULTIPLIER,
+      expected_pts:
+        simMean !== undefined ? simMean : price * _PRICE_FALLBACK_MULTIPLIER,
       asset_type: "driver",
-      constructor_name: ctorName,
-      constructor_color: ctorColor,
-    });
-  }
+      constructor_name: ctor?.name ?? "",
+      constructor_color: ctor?.color ?? "#888",
+    };
+  });
 
-  const constructorAssets: Asset[] = [];
-  for (const c of allCtors) {
-    const price = await latestPrice("constructor", c.id);
-    const simMean =
-      raceId !== null ? await latestSimMean("constructor", c.id, raceId) : null;
-    constructorAssets.push({
+  const constructorAssets: Asset[] = allCtors.map((c) => {
+    const price = priceByKey.get(`constructor:${c.id}`) ?? 0;
+    const simMean = simByKey.get(`constructor:${c.id}`);
+    return {
       id: c.id,
       code: c.refId,
       price,
-      expected_pts: simMean !== null ? simMean : price * _PRICE_FALLBACK_MULTIPLIER,
+      expected_pts:
+        simMean !== undefined ? simMean : price * _PRICE_FALLBACK_MULTIPLIER,
       asset_type: "constructor",
       constructor_name: c.name,
       constructor_color: c.color ?? "",
-    });
-  }
+    };
+  });
 
-  return { drivers: driverAssets, constructors: constructorAssets };
+  return {
+    drivers: driverAssets,
+    constructors: constructorAssets,
+    driversById,
+    constructorsById,
+    driverCodesByConstructorId,
+  };
 }
 
 export { round2 };

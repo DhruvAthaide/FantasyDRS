@@ -4,12 +4,12 @@
  *
  * Body: BestTeamRequest (all fields optional; defaults match Python).
  * Returns: TeamResult[]
+ *
+ * Perf (Plan 06-02): response DTOs built entirely from the maps returned by
+ * buildAssetListsForRace — zero extra DB round-trips in the hot path.
  */
-import { eq } from "drizzle-orm";
 import type { NextRequest } from "next/server";
 
-import { db } from "@/db";
-import { constructors, drivers } from "@/db/schema";
 import {
   BadRequestError,
   parseJsonBody,
@@ -48,56 +48,6 @@ function isBestTeamRequest(x: unknown): x is BestTeamRequest {
   return true;
 }
 
-async function driverAssetToResponse(
-  asset: Asset
-): Promise<DriverResponse | null> {
-  const d = await db
-    .select()
-    .from(drivers)
-    .where(eq(drivers.id, asset.id))
-    .limit(1);
-  if (d.length === 0) return null;
-  const row = d[0];
-  return {
-    id: row.id,
-    code: row.code,
-    first_name: row.firstName,
-    last_name: row.lastName,
-    number: row.number,
-    constructor_id: row.constructorId ?? 0,
-    constructor_name: asset.constructor_name ?? "",
-    constructor_color: asset.constructor_color ?? "#888",
-    country: row.country,
-    price: asset.price,
-    expected_pts: asset.expected_pts,
-  };
-}
-
-async function constructorAssetToResponse(
-  asset: Asset
-): Promise<ConstructorResponse | null> {
-  const c = await db
-    .select()
-    .from(constructors)
-    .where(eq(constructors.id, asset.id))
-    .limit(1);
-  if (c.length === 0) return null;
-  const row = c[0];
-  const dRows = await db
-    .select({ code: drivers.code })
-    .from(drivers)
-    .where(eq(drivers.constructorId, row.id));
-  return {
-    id: row.id,
-    ref_id: row.refId,
-    name: row.name,
-    color: row.color ?? "",
-    price: asset.price,
-    driver_codes: dRows.map((d) => d.code),
-    expected_pts: asset.expected_pts,
-  };
-}
-
 export async function POST(request: NextRequest) {
   return withRouteErrorHandler(async (): Promise<TeamResult[]> => {
     const body = await parseJsonBody<BestTeamRequest>(
@@ -111,8 +61,14 @@ export async function POST(request: NextRequest) {
     if (budget <= 0) throw new BadRequestError("budget must be > 0");
     if (topN < 1) throw new BadRequestError("top_n must be >= 1");
 
-    const { drivers: driverAssets, constructors: constructorAssets } =
-      await buildAssetListsForRace(body.race_id ?? null);
+    const bundle = await buildAssetListsForRace(body.race_id ?? null);
+    const {
+      drivers: driverAssets,
+      constructors: constructorAssets,
+      driversById,
+      constructorsById,
+      driverCodesByConstructorId,
+    } = bundle;
 
     const teams = findBestTeams({
       drivers: driverAssets,
@@ -127,22 +83,56 @@ export async function POST(request: NextRequest) {
       drsDriverId: body.drs_driver_id ?? undefined,
     });
 
+    const driverAssetToResponse = (asset: Asset): DriverResponse | null => {
+      const row = driversById.get(asset.id);
+      if (!row) return null;
+      return {
+        id: row.id,
+        code: row.code,
+        first_name: row.firstName,
+        last_name: row.lastName,
+        number: row.number,
+        constructor_id: row.constructorId ?? 0,
+        constructor_name: asset.constructor_name ?? "",
+        constructor_color: asset.constructor_color ?? "#888",
+        country: row.country,
+        price: asset.price,
+        expected_pts: asset.expected_pts,
+      };
+    };
+
+    const constructorAssetToResponse = (
+      asset: Asset
+    ): ConstructorResponse | null => {
+      const row = constructorsById.get(asset.id);
+      if (!row) return null;
+      return {
+        id: row.id,
+        ref_id: row.refId,
+        name: row.name,
+        color: row.color ?? "",
+        price: asset.price,
+        driver_codes: driverCodesByConstructorId.get(row.id) ?? [],
+        expected_pts: asset.expected_pts,
+      };
+    };
+
     const results: TeamResult[] = [];
     for (const team of teams) {
       const driverResponses: DriverResponse[] = [];
       for (const da of team.drivers) {
-        const r = await driverAssetToResponse(da);
+        const r = driverAssetToResponse(da);
         if (r !== null) driverResponses.push(r);
       }
 
       const constructorResponses: ConstructorResponse[] = [];
       for (const ca of team.constructors) {
-        const r = await constructorAssetToResponse(ca);
+        const r = constructorAssetToResponse(ca);
         if (r !== null) constructorResponses.push(r);
       }
 
-      const drs = await driverAssetToResponse(team.drs_driver);
-      if (drs === null) continue; // skip team if DRS driver missing from DB
+      const drs = driverAssetToResponse(team.drs_driver);
+      if (drs === null) continue;
 
       results.push({
         drivers: driverResponses,
