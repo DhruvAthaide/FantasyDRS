@@ -11,7 +11,15 @@ export class BadRequestError extends Error {
   status = 400;
 }
 
-/** Wrap an async route body; convert uncaught errors to JSON 400/500s. */
+/** Thrown to produce a 401 response (auth required / invalid credentials). */
+export class UnauthorizedError extends Error {
+  status = 401;
+  constructor(message = "Unauthorized") {
+    super(message);
+  }
+}
+
+/** Wrap an async route body; convert uncaught errors to JSON 400/401/500s. */
 export async function withRouteErrorHandler<T>(
   handler: () => Promise<T>
 ): Promise<NextResponse> {
@@ -21,6 +29,9 @@ export async function withRouteErrorHandler<T>(
   } catch (err: unknown) {
     if (err instanceof BadRequestError) {
       return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    if (err instanceof UnauthorizedError) {
+      return NextResponse.json({ error: err.message }, { status: 401 });
     }
     console.error("[api] unhandled route error:", err);
     const body: { error: string; detail?: string } = {
