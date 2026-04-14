@@ -284,3 +284,65 @@ export type NewRaceResult = typeof raceResults.$inferInsert;
 
 export type SimulationResult = typeof simulationResults.$inferSelect;
 export type NewSimulationResult = typeof simulationResults.$inferInsert;
+
+// ---------------------------------------------------------------------------
+// Mini-league (Plan 07-02) — shared admin-managed tracker
+// ---------------------------------------------------------------------------
+
+export const leagueMembers = pgTable("league_members", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: false }).defaultNow(),
+});
+
+export const memberRaceTeams = pgTable(
+  "member_race_teams",
+  {
+    id: serial("id").primaryKey(),
+    memberId: integer("member_id")
+      .notNull()
+      .references(() => leagueMembers.id),
+    raceId: integer("race_id")
+      .notNull()
+      .references(() => races.id),
+    driverIds: integer("driver_ids").array().notNull(),
+    constructorIds: integer("constructor_ids").array().notNull(),
+    drsDriverId: integer("drs_driver_id"),
+    updatedAt: timestamp("updated_at", { withTimezone: false }).defaultNow(),
+  },
+  (table) => ({
+    memberRaceUnique: uniqueIndex("member_race_teams_member_race_unique").on(
+      table.memberId,
+      table.raceId
+    ),
+  })
+);
+
+export const memberRaceScores = pgTable(
+  "member_race_scores",
+  {
+    id: serial("id").primaryKey(),
+    memberId: integer("member_id")
+      .notNull()
+      .references(() => leagueMembers.id),
+    raceId: integer("race_id")
+      .notNull()
+      .references(() => races.id),
+    points: real("points").notNull().default(0),
+    notes: text("notes"),
+    updatedAt: timestamp("updated_at", { withTimezone: false }).defaultNow(),
+  },
+  (table) => ({
+    memberRaceUnique: uniqueIndex("member_race_scores_member_race_unique").on(
+      table.memberId,
+      table.raceId
+    ),
+  })
+);
+
+export type LeagueMember = typeof leagueMembers.$inferSelect;
+export type NewLeagueMember = typeof leagueMembers.$inferInsert;
+export type MemberRaceTeam = typeof memberRaceTeams.$inferSelect;
+export type NewMemberRaceTeam = typeof memberRaceTeams.$inferInsert;
+export type MemberRaceScore = typeof memberRaceScores.$inferSelect;
+export type NewMemberRaceScore = typeof memberRaceScores.$inferInsert;
