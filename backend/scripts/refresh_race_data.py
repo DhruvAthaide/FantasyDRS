@@ -30,13 +30,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-# Make the `app` package importable regardless of where this script is invoked
+# Make the backend/scripts/ directory importable regardless of where this
+# script is invoked from (practice_data.py lives alongside this file after the
+# Phase 5 cleanup that removed backend/app/).
 REPO_ROOT = Path(__file__).resolve().parents[2]
-BACKEND_DIR = REPO_ROOT / "backend"
-if str(BACKEND_DIR) not in sys.path:
-    sys.path.insert(0, str(BACKEND_DIR))
+SCRIPTS_DIR = REPO_ROOT / "backend" / "scripts"
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
 
-from app.services.practice_data import (  # noqa: E402
+from practice_data import (  # noqa: E402
     _extract_long_runs,
     _fetch_weather,
     _process_fastf1_session,

@@ -152,6 +152,182 @@ export interface StrategyBriefResponse {
   simulated_at: string;
 }
 
+// ---------------------------------------------------------------------------
+// Plan 04-04 additions — schema mirrors for the bulk 11 routers
+// ---------------------------------------------------------------------------
+
+export interface ScoreBreakdown {
+  asset_type: "driver" | "constructor";
+  asset_id: number;
+  asset_name: string;
+  race_id: number;
+  race_name: string;
+  qualifying_pts: number;
+  race_position_pts: number;
+  positions_gained_pts: number;
+  overtake_pts: number;
+  fastest_lap_pts: number;
+  dotd_pts: number;
+  dnf_penalty: number;
+  pitstop_pts: number;
+  total_pts: number;
+}
+
+export interface PitstopResultCreate {
+  constructor_id: number;
+  race_id: number;
+  stop_number?: number;
+  time_seconds: number;
+  is_fastest?: boolean;
+}
+
+export interface PitstopResultResponse {
+  id: number;
+  constructor_id: number;
+  constructor_name: string;
+  constructor_color: string;
+  race_id: number;
+  race_name: string;
+  stop_number: number;
+  time_seconds: number;
+  points_scored: number;
+  is_fastest: boolean;
+}
+
+export interface PitstopSummary {
+  constructor_id: number;
+  constructor_name: string;
+  constructor_color: string;
+  avg_time: number;
+  best_time: number;
+  total_points: number;
+  num_stops: number;
+  fastest_count: number;
+}
+
+export interface PricePrediction {
+  asset_type: "driver" | "constructor";
+  asset_id: number;
+  asset_name: string;
+  current_price: number;
+  avg_ppm: number;
+  predicted_change: number;
+  change_category: string;
+  probability_increase: number;
+  probability_decrease: number;
+}
+
+export interface ChipRaceValue {
+  race_id: number;
+  race_name: string;
+  race_round: number;
+  normal_points: number;
+  chip_points: number;
+  chip_gain: number;
+}
+
+export interface ChipStrategyResponse {
+  chip_type: string;
+  race_values: ChipRaceValue[];
+  best_race_id: number;
+  best_race_name: string;
+  best_gain: number;
+}
+
+export interface TransferRequest {
+  driver_ids: number[];
+  constructor_ids: number[];
+  drs_driver_id: number;
+  race_id: number;
+  budget?: number;
+}
+
+export interface SwapSuggestion {
+  swap_type: "driver" | "constructor";
+  out_id: number;
+  out_name: string;
+  out_color: string;
+  out_points: number;
+  in_id: number;
+  in_name: string;
+  in_color: string;
+  in_points: number;
+  points_gained: number;
+  cost_delta: number;
+}
+
+export interface PowerUnitStatus {
+  driver_id: number;
+  driver_code: string;
+  driver_color: string;
+  components: Record<string, number>;
+  at_risk: boolean;
+}
+
+export interface PenaltyCalendarEntry {
+  driver_id: number;
+  driver_code: string;
+  driver_color: string;
+  race_id: number;
+  race_name: string;
+  race_round: number;
+  penalty_cost: number;
+  recommended: boolean;
+}
+
+export interface PowerUnitUpdateRequest {
+  driver_id: number;
+  component_type: string;
+  race_id: number;
+  total_used: number;
+}
+
+export interface RivalTeam {
+  name: string;
+  driver_ids: number[];
+  constructor_ids: number[];
+  drs_driver_id: number;
+}
+
+export interface LeagueSimRequest {
+  my_team: RivalTeam;
+  rivals: RivalTeam[];
+  race_id: number;
+}
+
+export interface LeagueSimResult {
+  team_name: string;
+  expected_points: number;
+  win_probability: number;
+  differential: number;
+}
+
+export interface CompareDriverResult {
+  driver_id: number;
+  code: string;
+  name: string;
+  constructor_color: string;
+  pace_rating: number;
+  consistency: number;
+  value: number;
+  form_trend: FormTrend;
+  circuit_fit: number;
+  risk: number;
+  expected_pts: number;
+  price: number;
+}
+
+export interface CompareConstructorResult {
+  constructor_id: number;
+  name: string;
+  color: string;
+  pace_rating: number;
+  consistency: number;
+  value: number;
+  expected_pts: number;
+  price: number;
+}
+
 export interface CachedSimResponse {
   status: "ok" | "not_found" | "no_data";
   race_id: number;

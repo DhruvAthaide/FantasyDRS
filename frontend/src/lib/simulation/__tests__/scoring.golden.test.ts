@@ -7,7 +7,7 @@
  */
 import { beforeAll, describe, expect, test } from "vitest";
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -46,7 +46,11 @@ function regenerate(): void {
 let fixture: Fixture;
 
 beforeAll(() => {
-  if (process.env.GOLDEN_SKIP_PYTHON !== "1") {
+  // Regen only when (a) not explicitly skipped, AND (b) backend/app/ still
+  // exists. Post-Phase-5 the Python simulation source is deleted; committed
+  // JSON fixtures are authoritative. See 05-02 SUMMARY.
+  const backendAppDir = path.join(repoRoot(), "backend", "app");
+  if (process.env.GOLDEN_SKIP_PYTHON !== "1" && existsSync(backendAppDir)) {
     regenerate();
   }
   fixture = JSON.parse(readFileSync(FIXTURE_PATH, "utf-8")) as Fixture;

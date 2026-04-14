@@ -26,7 +26,25 @@ import { buildAssetListsForRace } from "@/lib/simulation/auto-sim-helpers";
 
 function isBestTeamRequest(x: unknown): x is BestTeamRequest {
   if (x === null || typeof x !== "object") return false;
-  // All fields optional — just ensure it's an object.
+  const o = x as Record<string, unknown>;
+  if (o.budget !== undefined && typeof o.budget !== "number") return false;
+  if (o.race_id !== undefined && o.race_id !== null && typeof o.race_id !== "number") return false;
+  if (o.top_n !== undefined && typeof o.top_n !== "number") return false;
+  if (o.drs_multiplier !== undefined && typeof o.drs_multiplier !== "number") return false;
+  if (
+    o.drs_driver_id !== undefined &&
+    o.drs_driver_id !== null &&
+    typeof o.drs_driver_id !== "number"
+  )
+    return false;
+  for (const k of [
+    "include_drivers",
+    "exclude_drivers",
+    "include_constructors",
+    "exclude_constructors",
+  ] as const) {
+    if (o[k] !== undefined && !Array.isArray(o[k])) return false;
+  }
   return true;
 }
 

@@ -1,10 +1,17 @@
 """Generate golden-test fixtures from the Python simulation modules.
 
-Produces two JSON files that the TypeScript Vitest golden tests diff against
-their own ported modules. Re-running this script is cheap; the tests call it
-automatically unless GOLDEN_SKIP_PYTHON=1.
+HISTORICAL (Phase 5 Plan 05-02): after backend/app/ was deleted in the Vercel
+cutover, this script no longer runs — it imports from app.simulation which
+no longer exists. The committed JSON fixtures at
+frontend/src/lib/simulation/__tests__/golden-fixtures/*.json are now the
+authoritative source of truth, and the Vitest golden tests default to
+GOLDEN_SKIP_PYTHON=1 behavior.
 
-Usage:
+This script is retained for historical reference + in case a future developer
+chooses to temporarily restore backend/app/simulation to re-generate fixtures
+(e.g. after a scoring-rule change). Not needed for v1.0.
+
+Original usage (when backend/app/ still existed):
     python backend/scripts/generate_golden_fixtures.py
 """
 

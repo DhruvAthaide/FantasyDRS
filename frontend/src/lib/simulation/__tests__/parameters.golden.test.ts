@@ -8,7 +8,7 @@
  */
 import { beforeAll, describe, expect, test } from "vitest";
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -47,7 +47,8 @@ function regenerate(): void {
 let fixture: Fixture;
 
 beforeAll(() => {
-  if (process.env.GOLDEN_SKIP_PYTHON !== "1") {
+  const backendAppDir = path.join(repoRoot(), "backend", "app");
+  if (process.env.GOLDEN_SKIP_PYTHON !== "1" && existsSync(backendAppDir)) {
     regenerate();
   }
   fixture = JSON.parse(readFileSync(FIXTURE_PATH, "utf-8")) as Fixture;

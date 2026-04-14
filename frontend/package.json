@@ -10,6 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx src/db/seed.ts",
+    "db:seed-prices": "tsx src/db/seed-prices.ts",
     "db:import-results": "tsx src/db/import-race-results.ts",
     "test": "vitest run",
     "test:golden": "vitest run --dir src/lib/simulation/__tests__",
