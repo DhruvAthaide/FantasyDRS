@@ -4,3 +4,4 @@ __pycache__/
 venv/
 .env
 .paul
+.code-review-graph
